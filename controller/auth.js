@@ -3,14 +3,26 @@ import path from 'path';
 import jws from 'jws';
 import Token from './../model/auth.js';
 import { nanoid } from 'nanoid';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const alg = 'RS512';
 const lifedur = 2 * 60 * 1000;  // 5 хвилин
 
+// Получаем путь к текущей директории проекта
 const rootdir = process.cwd();
 
-const priv = await fs.readFile(path.join(rootdir, 'keys/privateKey.pem'), 'utf8');
-const pub = await fs.readFile(path.join(rootdir, 'keys/publicKey.pem'), 'utf8');
+// Получаем путь к файлам с ключами с учетом окружения
+const keysPathPriv = process.env.KEYS_PATH_PRIV
+  ? path.join(rootdir, process.env.KEYS_PATH_PRIV)
+  : path.join(rootdir, 'keys/privateKey.pem');
+const keysPathPub = process.env.KEYS_PATH_PUB
+  ? path.join(rootdir, process.env.KEYS_PATH_PUB)
+  : path.join(rootdir, 'keys/publicKey.pem');
+
+
+const priv = await fs.readFile(keysPathPriv, 'utf8');
+const pub = await fs.readFile(keysPathPub, 'utf8');
 
 // Функція для створення access token
 const createAccessToken = (payload) => {
