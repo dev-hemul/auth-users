@@ -14,11 +14,12 @@ const rootdir = process.cwd();
 
 // Получаем путь к файлам с ключами с учетом окружения
 const keysPathPriv = process.env.KEYS_PATH_PRIV
-  ? path.join(rootdir, process.env.KEYS_PATH_PRIV)
-  : path.join(rootdir, 'keys/privateKey.pem');
+  ? process.env.KEYS_PATH_PRIV  // Если путь уже абсолютный, используем его напрямую
+  : path.join(process.cwd(), 'keys/privateKey.pem'); // Если нет, строим относительный путь
+
 const keysPathPub = process.env.KEYS_PATH_PUB
-  ? path.join(rootdir, process.env.KEYS_PATH_PUB)
-  : path.join(rootdir, 'keys/publicKey.pem');
+  ? process.env.KEYS_PATH_PUB  // Если путь уже абсолютный, используем его напрямую
+  : path.join(process.cwd(), 'keys/publicKey.pem'); // Если нет, строим относительный путь
 
 
 const priv = await fs.readFile(keysPathPriv, 'utf8');
