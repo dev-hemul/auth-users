@@ -21,6 +21,8 @@ const keysPathPub = process.env.KEYS_PATH_PUB
   ? process.env.KEYS_PATH_PUB  // Если путь уже абсолютный, используем его напрямую
   : path.join(process.cwd(), 'keys/publicKey.pem'); // Если нет, строим относительный путь
 
+console.log("Private key path:", keysPathPriv);
+console.log("Public key path:", keysPathPub);
 
 const priv = await fs.readFile(keysPathPriv, 'utf8');
 const pub = await fs.readFile(keysPathPub, 'utf8');
