@@ -8,6 +8,7 @@ const alg = 'RS512';
 const lifedur = 2 * 60 * 1000;  // 5 хвилин
 
 const rootdir = process.cwd();
+console.log(rootdir);
 
 const priv = await fs.readFile(path.join(rootdir, 'keys/privateKey.pem'), 'utf8');
 const pub = await fs.readFile(path.join(rootdir, 'keys/publicKey.pem'), 'utf8');
