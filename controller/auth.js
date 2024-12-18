@@ -8,10 +8,12 @@ const alg = 'RS512';
 const lifedur = 2 * 60 * 1000;  // 5 хвилин
 
 const rootdir = process.cwd();
-console.log(rootdir);
 
-const priv = await fs.readFile(path.join(rootdir, 'keys/privateKey.pem'), 'utf8');
-const pub = await fs.readFile(path.join(rootdir, 'keys/publicKey.pem'), 'utf8');
+const privateKeyPath = process.env.PRIVATE_KEY_PATH || path.join(rootdir, 'keys/privateKey.pem');
+const publicKeyPath = process.env.PUBLIC_KEY_PATH || path.join(rootdir, 'keys/privateKey.pem');
+
+const priv = await fs.readFile(privateKeyPath, 'utf8');
+const pub = await fs.readFile(publicKeyPath, 'utf8');
 
 // Функція для створення access token
 const createAccessToken = (payload) => {
