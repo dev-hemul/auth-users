@@ -1,0 +1,82 @@
+server {
+    server_name evgeniiviter.site www.evgeniiviter.site;  # Замените на ваш IP-адрес или доменное имя или можно оставить IP-адрес, если его нет
+
+    # Обработка статических файлов React
+    location / {
+        root /var/www/auth-users/client/build;  # Путь для главной страницы React (index.html). Проверить название папки проекта и подставить нужное!!!!!!!
+        index index.html;
+        try_files $uri /index.html; # Это гарантирует, что React возьмет обработку маршрутов
+    }
+
+        # Проксирование запросов на Node.js сервер при ошибке
+    location @backend {
+        proxy_pass http://localhost:4000;  # Ваш Node.js сервер на порту 4000
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Проксирование API-запросов к Node.js серверу
+    location /auth {
+        proxy_pass http://localhost:4000;  # Порт, на котором работает ваш Node.js сервер
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;  # Передача реального IP-адреса клиента
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  # Передача IP-адресов через прокси
+        proxy_set_header X-Forwarded-Proto $scheme;  # Передача протокола (http или https)
+    }
+
+    location /restore {
+        proxy_pass http://localhost:4000;  # Node.js сервер
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;  # Реальный IP клиента
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  # IP через прокси
+        proxy_set_header X-Forwarded-Proto $scheme;  # Протокол (http или https)
+    }
+
+    location /profile {
+    proxy_pass http://localhost:4000/profile;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+
+    # Настройки SSL сертификатов + их автоматическое обновление
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/evgeniiviter.site/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/evgeniiviter.site/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+
+}
+
+server {
+    if ($host = www.evgeniiviter.site) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    if ($host = evgeniiviter.site) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen 80;
+    server_name evgeniiviter.site www.evgeniiviter.site;
+    return 404; # managed by Certbot
+
+}
