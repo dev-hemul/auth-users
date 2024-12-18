@@ -27,7 +27,8 @@ export const requestPasswordReset = async (req, res) => {
     await user.save();
 
     // Надсилання листа з посиланням на скидання пароля
-    const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
+    const url = process.env.NODE_ENV === 'production' ? 'https://evgeniiviter.site/' : 'http://localhost:3000/';
+    const resetLink = `${url}reset-password/${resetToken}`;
     await sendResetPasswordEmail(user.email, resetLink);
 
     return res.status(200).json({ status: 'ok', message: 'Посилання для скидання пароля відправлено на ваш email' });
