@@ -7,6 +7,6 @@ const app = Router();
 app.post('/forgot-password', requestPasswordReset);
 
 // Роут для скидання пароля
-app.post('/reset-password/', resetPassword);
+app.post('/reset-password/:token', resetPassword);
 
 export default app;
