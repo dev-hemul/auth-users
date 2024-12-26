@@ -124,14 +124,18 @@ router.post('/google-sign-in', async (req, res) => {
 		return res.status(400).json({error: 'Token is required'});
 	}
 	
-	console.log('Полученный Google Token:', token);  // Логируем токен
+	console.log('Отриманий Google Token:', token);  // Логуємо токен
 	
 	try {
+		// Запит до гугла - чи дійсний токен і чи справді належить моєму застосунку
 		const ticket = await oAuth2Client.verifyIdToken({
 			idToken: token,
 			audience: GOOGLE_CLIENT_ID
 		});
+		
+		// Якщо токен дійсний, то метод ticket отримує інфу про юзера із перевіреного токена
 		const payload = ticket.getPayload();
+		// Після цього кроку, об'єкт payload буде містити інформацію, яка була закодована в токені та підписана Google.
 		const {email, sub: googleId, name, picture} = payload;
 		console.log(`ТУТ ДАННЫЕ ПОЛЬЗОВАТЕЛЯ: ${email}, ${googleId}, ${name}`)
 		let user = await userModel.findOne({googleId});

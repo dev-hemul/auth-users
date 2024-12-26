@@ -13,6 +13,8 @@ const Profile = () => {
     if (!accessToken) {
       setError('Ви не маєте доступ до цієї сторінки. Вам потрібно залогінитись!');
       return;
+    }else {
+      navigate('/profile');
     }
 
     const fetchProfileData = async () => {

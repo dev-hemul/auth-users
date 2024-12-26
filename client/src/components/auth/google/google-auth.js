@@ -1,8 +1,6 @@
-// GoogleAuthButton.js
-import React from 'react';
 import { FcGoogle } from 'react-icons/fc';
 import { toast } from 'react-toastify';
-import { GoogleLogin } from '@react-oauth/google'; // Импортируем GoogleLogin
+import { GoogleLogin } from '@react-oauth/google'; // Імпортуємо GoogleLogin
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,44 +12,44 @@ const GoogleAuthButton = () => {
       console.log('Google response:', response);
 
       if (!response.credential) {
-        toast.error('Ошибка авторизации через Google');
+        toast.error('Помилка авторизації через Google');
         return;
       }
 
-      const apiUrl = process.env.REACT_APP_GOOGLE_AUTH_URL; // URL на сервер для обработки Google авторизации
-      console.log('API URL:', apiUrl); // Логируем URL, по которому отправляется запрос
+      const apiUrl = process.env.REACT_APP_GOOGLE_AUTH_URL; // URL на сервер для обробки Google авторизації
+      console.log('API URL:', apiUrl); // Логуємо URL, яким надсилається запит
 
-      // Отправляем запрос на сервер с токеном Google
+      // Надсилаємо запит на сервер із токеном Google
       const { data } = await axios.post(apiUrl, {
-        token: response.credential, // Токен из Google
+        token: response.credential, // Токен з Google
       });
 
-      // Логируем ответ от сервера
+      // Логуємо відповідь від сервера
       console.log('Server response:', data);
 
       if (data.status === 'ok') {
-        toast.success('Успешный вход через Google');
+        toast.success('Успішний вхід через Google');
         localStorage.setItem('accessToken', data.message.accessT);
         localStorage.setItem('refreshToken', data.message.refreshT);
-        // Здесь можно перенаправить пользователя на нужную страницу
+        // перенаправити користувача на потрібну сторінку при успішному вході
         navigate('/profile');
       } else {
-        toast.error('Ошибка авторизации через Google');
+        toast.error('Помилка авторизації через Google');
       }
     } catch (error) {
-      // Логируем ошибку, если она возникает
-      console.error('Ошибка при авторизации через Google:', error.message);
-      toast.error('Произошла ошибка при авторизации через Google');
+      // Логуємо помилку, якщо вона виникає
+      console.error('Помилка авторизації через Google:', error.message);
+      toast.error('Виникла помилка при авторизації через Google');
     }
   };
 
   return (
     <GoogleLogin
       onSuccess={(response) => {
-        console.log('Google login successful:', response); // Логируем успешную авторизацию
-        handleGoogleAuth(response); // Вызываем обработчик для дальнейшей обработки
+        console.log('Google login successful:', response); // Логуємо успішну авторизацію
+          handleGoogleAuth(response); // Викликаємо обробник для подальшої обробки
       }}
-      onError={() => toast.error('Ошибка при авторизации через Google')} // Логируем ошибку, если она произошла
+      onError={() => toast.error('Помилка авторизації через Google')} // Логуємо помилку, якщо вона сталася
       useOneTap
     >
       <button
