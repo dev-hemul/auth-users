@@ -7,20 +7,16 @@ const schema = new Schema({
 	},
 	password: {
 		type: SchemaTypes.String,
-		default: '',
+		default: null,
 	},
 	email: {
 		type: SchemaTypes.String,
 		default: '',
 	},
-  resetToken: {
-    type: String,
-    default: null
-  },
-  resetTokenExpiration: {
-    type: Date,
-    default: null
-  },
+	googleId: {
+	type: SchemaTypes.Number,
+		default: '',
+	}
 	
 }, {timestamps: true}); // Автоматом додасть поля createdAt, updatedAt (час створення і час оновлення запису)
 
