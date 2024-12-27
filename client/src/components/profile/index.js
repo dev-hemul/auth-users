@@ -29,6 +29,7 @@ const Profile = () => {
             },
           }
         );
+        console.log("PAYLOAD:", JSON.stringify(data.payload, null, 2));
         setProfileData(data.payload);
       } catch (error) {
         setError('Ваш токен більше не дійсний, залогіньтесь будь-ласка знову');

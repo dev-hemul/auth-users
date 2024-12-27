@@ -155,6 +155,7 @@ router.post('/google-sign-in', async (req, res) => {
 			});
 		} else {
 			userModel.avatar = base64Image;
+			await user.save();
 		}
 		
 		await user.save();
