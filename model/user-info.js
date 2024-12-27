@@ -16,7 +16,15 @@ const schema = new Schema({
 	googleId: {
 	type: SchemaTypes.Number,
 		default: '',
-	}
+	},
+	 resetToken: {
+    type: String,
+    default: null
+  },
+  resetTokenExpiration: {
+    type: Date,
+    default: null
+  }
 	
 }, {timestamps: true}); // Автоматом додасть поля createdAt, updatedAt (час створення і час оновлення запису)
 
