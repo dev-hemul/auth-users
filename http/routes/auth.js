@@ -8,6 +8,7 @@ import Ajv from 'ajv';
 import {userSchema} from '../helpers/userSchemaValidation.js';
 import bcrypt from 'bcrypt';
 import {OAuth2Client} from 'google-auth-library';
+import axios from 'axios';
 
 const router = Router();
 const ajv = new Ajv();
@@ -137,17 +138,26 @@ router.post('/google-sign-in', async (req, res) => {
 		const payload = ticket.getPayload();
 		// Після цього кроку, об'єкт payload буде містити інформацію, яка була закодована в токені та підписана Google.
 		const {email, sub: googleId, name, picture} = payload;
-		console.log(`ТУТ ДАННЫЕ ПОЛЬЗОВАТЕЛЯ: ${email}, ${googleId}, ${name}`)
+		console.log(`Тут дані користувача: ${email}, ${googleId}, ${name}`)
+		// Пошук юзера в бд по його google id
 		let user = await userModel.findOne({googleId});
-		
+		// Робимо запит картинки до гугла
+		const response = await axios.get(picture, {responseType: 'arraybuffer'});
+			const base64Image = Buffer.from(response.data).toString('base64');
+		// Якщо не знайдено ID, то створюємо
 		if (!user) {
+			// Загружаем изображение и преобразуем в base64
 			user = new userModel({
 				googleId: googleId,
 				login: name,
-				email
+				email,
+				avatar: base64Image
 			});
-			await user.save();
+		} else {
+			userModel.avatar = base64Image;
 		}
+		
+		await user.save();
 		
 		const userId = user._id.toString();
 		const tokens = await auth.createTokens({iss: userId});
@@ -160,8 +170,8 @@ router.post('/google-sign-in', async (req, res) => {
 		
 		res.json({status: 'ok', message: {...tokens, user}});
 	} catch (error) {
-		console.error('Ошибка при авторизации через Google:', error.message);
-		res.status(500).json({error: 'Ошибка авторизации через Google'});
+		console.error('Помилка при авторизації через Google:', error.message);
+		res.status(500).json({error: 'Помилка при авторизації через Google'});
 	}
 });
 

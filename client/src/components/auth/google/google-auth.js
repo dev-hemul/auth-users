@@ -8,7 +8,7 @@ const GoogleAuthButton = () => {
   const navigate = useNavigate();
   const handleGoogleAuth = async (response) => {
     try {
-      // Логируем сам ответ от Google
+      // Логіруємо відповідь від Google
       console.log('Google response:', response);
 
       if (!response.credential) {

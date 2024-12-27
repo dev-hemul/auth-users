@@ -29,7 +29,6 @@ const Profile = () => {
             },
           }
         );
-        /*console.log(data);*/
         setProfileData(data.payload);
       } catch (error) {
         setError('Ваш токен більше не дійсний, залогіньтесь будь-ласка знову');
@@ -74,6 +73,13 @@ const Profile = () => {
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-700">
           Профіль користувача
         </h2>
+        <div className="flex flex-col items-center">
+        <img
+          className="mb-5"
+        src={`data:image/jpeg;base64,${profileData.avatar}`}
+        alt="User Avatar"
+        style={{ width: '100px', height: '100px', borderRadius: '50%' }}
+      />
         <p className="text-lg mb-4">
           <span className="font-medium text-gray-600">User ID:</span> {profileData.uid}
         </p>
@@ -81,8 +87,9 @@ const Profile = () => {
           <span className="font-medium text-gray-600">Ваш логін:</span> {profileData.login}
         </p>
         <p className="text-lg mb-4">
-          <span className="font-medium text-gray-600">Ваш Пароль:</span> {profileData.email}
+          <span className="font-medium text-gray-600">Ваш E-mail:</span> {profileData.email}
         </p>
+          </div>
         <button
           type="button"
           onClick={logout}

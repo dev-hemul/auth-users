@@ -9,7 +9,7 @@ router.post('/profile', onlyAuthMv, async (req, res) => {
   const { uid } = res.locals;
 
   try {
-    const user = await User.findById(uid).select('login email'); // Шукаємо користувача по UID
+    const user = await User.findById(uid).select('login email avatar'); // Шукаємо користувача по UID
     if (!user) {
       return res.status(404).json({ message: 'User not found' }); // Користувача не знайдено
     }
@@ -21,6 +21,7 @@ router.post('/profile', onlyAuthMv, async (req, res) => {
         uid,
         login: user.login,
         email: user.email,
+        avatar: user.avatar,
       },
     });
   } catch (error) {

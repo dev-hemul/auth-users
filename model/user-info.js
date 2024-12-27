@@ -13,6 +13,10 @@ const schema = new Schema({
 		type: SchemaTypes.String,
 		default: '',
 	},
+	avatar: {
+		type: SchemaTypes.String,
+		default: null,
+	},
 	googleId: {
 	type: SchemaTypes.Number,
 		default: '',
