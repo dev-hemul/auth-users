@@ -23,6 +23,7 @@ const GoogleAuthButton = () => {
       const { data } = await axios.post(apiUrl, {
         token: response.credential, // Токен з Google
       });
+      console.log(`Дані які надсилаємо серверу: ${data}`);
 
       // Логуємо відповідь від сервера
       console.log('Server response:', data);
