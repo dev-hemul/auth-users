@@ -175,7 +175,7 @@ router.post('/google-sign-in', async (req, res) => {
 	}
 });
 
-
+// роут для оновлення інформації користувача
 router.get('/google-info-me', async (req, res) => {
 	const {authorization} = req.headers;
 	
