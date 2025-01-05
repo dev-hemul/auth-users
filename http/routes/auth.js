@@ -122,93 +122,126 @@ router.post('/replaceTokens', async (req, res) => {
 });
 
 
-router.post('/google-sign-in', async (req, res) => {
-    const { token } = req.body;
-
-    if (!token) {
-        return res.status(400).json({ error: 'Token is required' });
-    }
-
-    try {
-        // Получаем данные о пользователе через Google API
-        const userInfoResponse = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-
-        const { email, sub: googleId, name, picture } = userInfoResponse.data;
-
-        if (!email || !googleId || !name || !picture) {
-            return res.status(400).json({ error: 'Incomplete user data from Google' });
-        }
-
-        // Загружаем аватар пользователя
-        const response = await axios.get(picture, { responseType: 'arraybuffer' });
-        const base64Image = Buffer.from(response.data).toString('base64');
-
-        // Проверяем, существует ли пользователь в таблице user-info по googleId
-        let user = await userModel.findOne({ googleId });
-
-        if (!user) {
-            // Если пользователь не найден, создаем нового пользователя
-            user = new userModel({
-                googleId,
-                login: name,
-                email,
-                avatar: base64Image
-            });
-            await user.save(); // Сохраняем пользователя
-        } else {
-            // Если пользователь найден, обновляем аватар
-            user.avatar = base64Image;
-            await user.save();
-        }
-
-        // После того как пользователь создан или найден, ищем его по _id
-        const userId = user._id; // Получаем _id пользователя
-
-        // Генерация токенов
-        const tokens = await auth.createTokens({ iss: userId }); // Генерация токенов для пользователя
-
-        console.log(`User ID: ${userId}`);
-        console.log(`Access Token: ${tokens.accessT}`);
-        console.log(`Refresh Token: ${tokens.refreshT}`);
-
-        // Проверяем, существует ли запись в таблице Token
-        let tokenRecord = await Token.findOne({ userId });
-
-        if (!tokenRecord) {
-            console.log('Запись в таблице Token не найдена. Создаем новую запись.');
-            // Если записи с таким userId нет, создаем новую запись
-            tokenRecord = new Token({
-                userId,
-                accessToken: tokens.accessT,
-                refreshToken: tokens.refreshT
-            });
-            await tokenRecord.save(); // Сохраняем новую запись
-        } else {
-            console.log('Запись в таблице Token найдена. Обновляем токены.');
-            // Если запись с таким userId уже существует, обновляем токены
-            tokenRecord.accessToken = tokens.accessT;
-            tokenRecord.refreshToken = tokens.refreshT;
-            await tokenRecord.save(); // Обновляем запись
-        }
-
-        // Отправляем ответ с токенами и информацией о пользователе
-        res.json({ status: 'ok', message: { ...tokens, user } });
-    } catch (error) {
-        console.error('Ошибка при авторизации через Google:', error.message);
-        res.status(500).json({ error: 'Ошибка при авторизации через Google' });
-    }
+router.post('/google-login', async (req, res) => {
+	const {token} = req.body;
+	
+	if (!token) {
+		return res.status(400).json({error: 'Token is required'});
+	}
+	
+	try {
+		// Получаем данные о пользователе через Google API
+		const userInfoResponse = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+			headers: {Authorization: `Bearer ${token}`}
+		});
+		
+		const {email, sub: googleId, name, picture} = userInfoResponse.data;
+		
+		if (!email || !googleId || !name || !picture) {
+			return res.status(400).json({error: 'Incomplete user data from Google'});
+		}
+		
+		// Проверяем, существует ли пользователь в таблице user-info по googleId
+		let user = await userModel.findOne({googleId});
+		
+		// Загружаем аватар пользователя
+		const response = await axios.get(picture, {responseType: 'arraybuffer'});
+		const base64Image = Buffer.from(response.data).toString('base64');
+		
+		if (user) {
+			// Если пользователь найден, обновляем аватар
+			user.avatar = base64Image;
+			await user.save(); // Сохраняем пользователя
+		}
+		
+		// После того как пользователь найден, ищем его по _id
+		const userId = user._id; // Получаем _id пользователя
+		
+		// Генерация токенов
+		const tokens = await auth.createTokens({iss: userId}); // Генерация токенов для пользователя
+		
+		// Проверяем, существует ли запись в таблице Token
+		let tokenRecord = await Token.findOneAndUpdate({userId});
+		console.log(tokenRecord);
+		
+		// Если запись с таким userId уже существует, обновляем токены
+		if(tokenRecord !== null) {
+		tokenRecord.accessToken = tokens.accessT;
+		tokenRecord.refreshToken = tokens.refreshT;
+		await tokenRecord.save(); // Обновляем запись
+		}
+		
+		// Отправляем ответ с токенами и информацией о пользователе
+		res.json({status: 'ok', message: {...tokens, user}});
+	} catch (error) {
+		console.error('Ошибка при авторизации через Google:', error.message);
+		res.status(500).json({error: 'Ошибка при авторизации через Google'});
+	}
 });
 
-
-
-
-
-
-
-
-
+router.post('/google-register', async (req, res) => {
+	const {token} = req.body;
+	
+	if (!token) {
+		return res.status(400).json({error: 'Token is required'});
+	}
+	
+	try {
+		// Получаем данные о пользователе через Google API
+		const userInfoResponse = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+			headers: {Authorization: `Bearer ${token}`}
+		});
+		
+		const {email, sub: googleId, name, picture} = userInfoResponse.data;
+		
+		if (!email || !googleId || !name || !picture) {
+			return res.status(400).json({error: 'Incomplete user data from Google'});
+		}
+		
+		// Загружаем аватар пользователя
+		const response = await axios.get(picture, {responseType: 'arraybuffer'});
+		const base64Image = Buffer.from(response.data).toString('base64');
+		
+		// Проверяем, существует ли пользователь в таблице user-info по googleId
+		let user = await userModel.findOne({googleId});
+		
+		if (!user) {
+			// Если пользователь не найден, создаем нового пользователя
+			user = new userModel({
+				googleId,
+				login: name,
+				email,
+				avatar: base64Image
+			});
+			await user.save(); // Сохраняем пользователя
+		}
+		
+		// После того как пользователь создан или найден, ищем его по _id
+		const userId = user._id; // Получаем _id пользователя
+		
+		// Генерация токенов
+		const tokens = await auth.createTokens({iss: userId}); // Генерация токенов для пользователя
+		
+		// Проверяем, существует ли запись в таблице Token
+		let tokenRecord = await Token.findOne({userId});
+		
+			// Если записи с таким userId нет, создаем новую запись
+		if (!tokenRecord) {
+			tokenRecord = new Token({
+				userId,
+				accessToken: tokens.accessT,
+				refreshToken: tokens.refreshT
+			});
+			}
+			await tokenRecord.save(); // Сохраняем новую запись
+		
+		// Отправляем ответ с токенами и информацией о пользователе
+		res.json({status: 'ok', message: {...tokens, user}});
+	} catch (error) {
+		console.error('Ошибка при регистрации через Google:', error.message);
+		res.status(500).json({error: 'Ошибка при регистрации через Google'});
+	}
+});
 
 
 // Маршрут для початку авторизації через Facebook

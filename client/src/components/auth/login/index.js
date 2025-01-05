@@ -155,7 +155,8 @@
               
               <div className="flex gap-5 justify-center flex-wrap">
                 <div>
-                  <GoogleAuthButton />
+                  {isLoginMode ? <GoogleAuthButton type="login" /> : <GoogleAuthButton type="register" />}
+                  
                 </div>
               <div>
                 <FacebookAuthButton />
