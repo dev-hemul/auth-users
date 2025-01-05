@@ -12,7 +12,6 @@ const mv = (req, res, next) => {
 
   // Перевіряємо токен
   const result = auth.verifyAccessT(accessT);
-  console.log('verifyAccessT result:', result);
 
   if (result !== true) {
     return next(createHttpError(403, 'Invalid or expired token'));
@@ -21,8 +20,6 @@ const mv = (req, res, next) => {
   // Виймаємо payload з токена і зберігаємо user ID в res.locals
   const payload = auth.getPayloadAccessT(accessT);
   res.locals.uid = payload.iss;  // Зберігаємо user ID як uid
-  console.log('Payload:', payload);
-  console.log('UID:', res.locals.uid);
 
   next();
 };

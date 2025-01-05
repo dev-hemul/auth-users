@@ -3,7 +3,8 @@
   import { toast } from 'react-toastify';
   import { useNavigate } from 'react-router-dom';
   import 'react-toastify/dist/ReactToastify.css';
-  import GoogleAuthButton from '../google/google-auth'; // Импортируй компонент
+  import GoogleAuthButton from '../google/google-auth';
+  import FacebookAuthButton from '../facebook/facebook-auth';
   
   const LoginPage = () => {
     const [isLoginMode, setIsLoginMode] = useState(true);
@@ -146,14 +147,20 @@
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-2 px-4 text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md focus:outline-none text-sm font-medium"
+                  className="w-full py-2 px-4 text-white bg-emerald-500 hover:bg-emerald-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md focus:outline-none text-sm font-medium"
                 >
                   {isLoginMode ? 'Увійти' : 'Зареєструватись'}
                 </button>
               </form>
               
-              <div className="flex justify-center">
-              <GoogleAuthButton />
+              <div className="flex gap-5 justify-center flex-wrap">
+                <div>
+                  <GoogleAuthButton />
+                </div>
+              <div>
+                <FacebookAuthButton />
+              </div>
+              
             </div>
               <div className="text-sm text-center">
                 {isLoginMode ? (
@@ -166,7 +173,7 @@
                           setIsResetMode(true);
                           setEmail('');
                         }}
-                        className="text-red-600 hover:text-red-400 font-medium"
+                        className="text-red-600 hover:text-red-500 hover:underline font-medium"
                       >
                         Відновити
                       </button>
@@ -176,7 +183,7 @@
                       <button
                         type="button"
                         onClick={() => setIsLoginMode(false)}
-                        className="text-green-600 hover:text-green-400 font-medium"
+                        className="text-green-600 hover:text-green-500 hover:underline font-medium"
                       >
                         Зареєструватись
                       </button>

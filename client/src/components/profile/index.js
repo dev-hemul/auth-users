@@ -9,7 +9,10 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const accessToken = localStorage.getItem('accessToken');
+    const params = new URLSearchParams(window.location.search); // Читаем параметры из адресной строки
+    const accessT = params.get('accessT'); // Получаем accessToken
+
+    const accessToken = localStorage.getItem('accessToken') || accessT;
 
     if (!accessToken) {
       setError('Ви не маєте доступ до цієї сторінки. Вам потрібно залогінитись!');

@@ -3,32 +3,36 @@ import mongoose, {Schema, SchemaTypes} from 'mongoose';
 const schema = new Schema({
 	login: {
 		type: SchemaTypes.String,
-		default: '',
+		default: ''
 	},
 	password: {
 		type: SchemaTypes.String,
-		default: null,
+		default: null
 	},
 	email: {
 		type: SchemaTypes.String,
-		default: '',
+		default: ''
 	},
 	avatar: {
 		type: SchemaTypes.String,
-		default: null,
+		default: null
 	},
 	googleId: {
-	type: SchemaTypes.Number,
-		default: '',
+		type: SchemaTypes.Number,
+		default: null,
 	},
-	 resetToken: {
-    type: String,
-    default: null
-  },
-  resetTokenExpiration: {
-    type: Date,
-    default: null
-  }
+	facebookId: {
+		type: SchemaTypes.Number,
+		default: null
+	},
+	resetToken: {
+		type: String,
+		default: null
+	},
+	resetTokenExpiration: {
+		type: Date,
+		default: null
+	}
 	
 }, {timestamps: true}); // Автоматом додасть поля createdAt, updatedAt (час створення і час оновлення запису)
 

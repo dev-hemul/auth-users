@@ -14,8 +14,13 @@ const router = Router();
 const ajv = new Ajv();
 const validate = ajv.compile(userSchema);
 
-const GOOGLE_CLIENT_ID = process.env.CLIENT_ID;
+const GOOGLE_CLIENT_ID = process.env.CLIENT_ID_GOOGLE;
 const oAuth2Client = new OAuth2Client(GOOGLE_CLIENT_ID);
+
+const FB_CLIENT_ID = process.env.FB_CLIENT_ID;
+const FB_CLIENT_SECRET = process.env.FB_CLIENT_SECRET;
+const FB_REDIRECT_URI = process.env.FB_REDIRECT_URI;
+const FRONTEND_URL = process.env.FB_REDIRECT_FRONT;
 
 // Приходять login + pwd. Створюємо токен
 router.post('/strategy/local/login', async (req, res) => {
@@ -81,7 +86,6 @@ router.post('/strategy/local/registration', async (req, res) => {
 	// Створення токенів
 	const payload = {iss: userId}; // передаємо userId як `iss`
 	const {accessT, refreshT} = await auth.createTokens(payload);
-	console.log(accessT, refreshT)
 	
 	res.json({status: 'ok', message: {accessT, refreshT}});
 	
@@ -117,94 +121,180 @@ router.post('/replaceTokens', async (req, res) => {
 	return res.json({status: 'ok', payload: {Newtokens: newTokens}});
 });
 
+
 router.post('/google-sign-in', async (req, res) => {
-	const {token} = req.body;
-	console.log(token)
+    const { token } = req.body;
+
+    if (!token) {
+        return res.status(400).json({ error: 'Token is required' });
+    }
+
+    try {
+        // Получаем данные о пользователе через Google API
+        const userInfoResponse = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const { email, sub: googleId, name, picture } = userInfoResponse.data;
+
+        if (!email || !googleId || !name || !picture) {
+            return res.status(400).json({ error: 'Incomplete user data from Google' });
+        }
+
+        // Загружаем аватар пользователя
+        const response = await axios.get(picture, { responseType: 'arraybuffer' });
+        const base64Image = Buffer.from(response.data).toString('base64');
+
+        // Проверяем, существует ли пользователь в таблице user-info по googleId
+        let user = await userModel.findOne({ googleId });
+
+        if (!user) {
+            // Если пользователь не найден, создаем нового пользователя
+            user = new userModel({
+                googleId,
+                login: name,
+                email,
+                avatar: base64Image
+            });
+            await user.save(); // Сохраняем пользователя
+        } else {
+            // Если пользователь найден, обновляем аватар
+            user.avatar = base64Image;
+            await user.save();
+        }
+
+        // После того как пользователь создан или найден, ищем его по _id
+        const userId = user._id; // Получаем _id пользователя
+
+        // Генерация токенов
+        const tokens = await auth.createTokens({ iss: userId }); // Генерация токенов для пользователя
+
+        console.log(`User ID: ${userId}`);
+        console.log(`Access Token: ${tokens.accessT}`);
+        console.log(`Refresh Token: ${tokens.refreshT}`);
+
+        // Проверяем, существует ли запись в таблице Token
+        let tokenRecord = await Token.findOne({ userId });
+
+        if (!tokenRecord) {
+            console.log('Запись в таблице Token не найдена. Создаем новую запись.');
+            // Если записи с таким userId нет, создаем новую запись
+            tokenRecord = new Token({
+                userId,
+                accessToken: tokens.accessT,
+                refreshToken: tokens.refreshT
+            });
+            await tokenRecord.save(); // Сохраняем новую запись
+        } else {
+            console.log('Запись в таблице Token найдена. Обновляем токены.');
+            // Если запись с таким userId уже существует, обновляем токены
+            tokenRecord.accessToken = tokens.accessT;
+            tokenRecord.refreshToken = tokens.refreshT;
+            await tokenRecord.save(); // Обновляем запись
+        }
+
+        // Отправляем ответ с токенами и информацией о пользователе
+        res.json({ status: 'ok', message: { ...tokens, user } });
+    } catch (error) {
+        console.error('Ошибка при авторизации через Google:', error.message);
+        res.status(500).json({ error: 'Ошибка при авторизации через Google' });
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+// Маршрут для початку авторизації через Facebook
+router.get('/facebook', (req, res) => {
+	const fbAuthUrl = `https://www.facebook.com/v15.0/dialog/oauth?client_id=${FB_CLIENT_ID}&redirect_uri=${FB_REDIRECT_URI}&scope=public_profile`;
+	res.redirect(fbAuthUrl);
+});
+
+// Обробка редиректу від Facebook
+router.get('/facebook/callback', async (req, res) => {
+	const {code} = req.query;
 	
-	if (!token) {
-		return res.status(400).json({error: 'Token is required'});
+	if (!code) {
+		return res.status(400).json({error: 'Authorization code not found'});
 	}
 	
-	console.log('Отриманий Google Token:', token);  // Логуємо токен
-	
 	try {
-		// Запит до гугла - чи дійсний токен і чи справді належить моєму застосунку
-		const ticket = await oAuth2Client.verifyIdToken({
-			idToken: token,
-			audience: GOOGLE_CLIENT_ID
-		});
+		// Отримання access_token від Facebook
+		const tokenResponse = await axios.get(
+			`https://graph.facebook.com/v15.0/oauth/access_token`,
+			{
+				params: {
+					client_id: FB_CLIENT_ID,
+					client_secret: FB_CLIENT_SECRET,
+					redirect_uri: FB_REDIRECT_URI,
+					code
+				}
+			}
+		);
 		
-		// Якщо токен дійсний, то метод ticket отримує інфу про юзера із перевіреного токена
-		const payload = ticket.getPayload();
-		// Після цього кроку, об'єкт payload буде містити інформацію, яка була закодована в токені та підписана Google.
-		const {email, sub: googleId, name, picture} = payload;
-		console.log(`Тут дані користувача: ${email}, ${googleId}, ${name}`)
-		// Пошук юзера в бд по його google id
-		let user = await userModel.findOne({googleId});
-		// Робимо запит картинки до гугла
-		const response = await axios.get(picture, {responseType: 'arraybuffer'});
-			const base64Image = Buffer.from(response.data).toString('base64');
-		// Якщо не знайдено ID, то створюємо
+		const accessToken = tokenResponse.data.access_token;
+		
+		// Запит даних користувача
+		const userResponse = await axios.get(
+			`https://graph.facebook.com/me`,
+			{
+				params: {
+					access_token: accessToken,
+					fields: 'id,name,email, picture.type(normal)'
+				}
+			}
+		);
+		
+		const {id: facebookId, name, email, picture, birthday} = userResponse.data;
+		const profilePictureUrl = picture?.data?.url;
+		const response = await axios.get(profilePictureUrl, {responseType: 'arraybuffer'});
+		const base64Image = Buffer.from(response.data).toString('base64');
+		
+		// Перевірка, чи є користувач у БД
+		let user = await userModel.findOne({facebookId});
+		
 		if (!user) {
-			// Загружаем изображение и преобразуем в base64
 			user = new userModel({
-				googleId: googleId,
+				facebookId,
 				login: name,
-				email,
+				email: email,
 				avatar: base64Image
 			});
+			
+			await user.save(); // Зберігаємо нового користувача до бази
 		} else {
+			// Якщо користувач існує, оновлюємо інформацію (наприклад, ім'я або електронна пошта)
+			user.login = name;
+			user.email = email;
 			user.avatar = base64Image;
+			await user.save();
 		}
 		
-		await user.save();
-		
+		// Генерація токенів
 		const userId = user._id.toString();
 		const tokens = await auth.createTokens({iss: userId});
 		
 		await Token.findOneAndUpdate(
 			{userId},
-			{refreshToken: tokens.refreshT},
+			{refreshToken: tokens.refreshT, accessToken: tokens.accessT},
 			{upsert: true}
 		);
 		
-		res.json({status: 'ok', message: {...tokens, user}});
+		const frontendRedirectUrl = `${FRONTEND_URL}/profile?accessT=${tokens.accessT}&refreshT=${tokens.refreshT}`;
+		res.redirect(frontendRedirectUrl);
+		
 	} catch (error) {
-		console.error('Помилка при авторизації через Google:', error.message);
-		res.status(500).json({error: 'Помилка при авторизації через Google'});
+		console.error('Помилка при авторизації через Facebook:', error.message);
+		res.status(500).json({error: 'Помилка при авторизації через Facebook'});
 	}
 });
-
-// роут для оновлення інформації користувача
-router.get('/google-info-me', async (req, res) => {
-	const {authorization} = req.headers;
-	
-	if (!authorization) {
-		return res.status(401).json({error: 'Authorization header is required'});
-	}
-	
-	const token = authorization.replace('Bearer ', '');
-	
-	try {
-		const validSign = auth.verifySign(token);
-		if (!validSign) {
-			return res.status(403).json({error: 'Invalid token'});
-		}
-		
-		const decoded = auth.decodeToken(token);
-		const userId = decoded.iss;
-		
-		const user = await userModel.findById(userId).select('-password');
-		if (!user) {
-			return res.status(404).json({error: 'User not found'});
-		}
-		
-		res.json({success: true, user});
-	} catch (error) {
-		console.error('Ошибка получения информации о пользователе:', error.message);
-		res.status(500).json({error: 'Ошибка получения данных пользователя'});
-	}
-})
 
 
 export default router;

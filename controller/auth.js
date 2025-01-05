@@ -36,8 +36,7 @@ const createRefreshToken = async (jti, userId, accessT) => {
     await Token.create({
         userId: userId,
         accessToken: accessT,  // передаємо створений accessToken
-        refreshToken: token,
-        jti: jti,
+        refreshToken: token
     });
     return token;
 };
@@ -47,9 +46,6 @@ const createTokens = async (payload) => {
     try {
         const { token: accessT, jti } = createAccessToken(payload);
         const refreshT = await createRefreshToken(jti, payload.iss, accessT);  // передаємо payload.iss як userId
-
-        console.log('Access Token:', accessT);
-        console.log('Refresh Token:', refreshT);
 
         if (!accessT || !refreshT) {
              console.error("Access Token or Refresh Token is missing");
