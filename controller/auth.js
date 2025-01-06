@@ -5,7 +5,7 @@ import Token from './../model/auth.js';
 import { nanoid } from 'nanoid';
 
 const alg = 'RS512';
-const lifedur = 10 * 60 * 1000;  // 10 хвилин
+const lifedur = 3 * 60 * 1000;  // 3 хвилин
 
 const rootdir = process.cwd();
 
@@ -32,13 +32,24 @@ const createAccessToken = (payload) => {
 
 // Функція для створення refresh token
 const createRefreshToken = async (jti, userId, accessT) => {
-    const token = nanoid();
-    await Token.create({
-        userId: userId,
-        accessToken: accessT,  // передаємо створений accessToken
-        refreshToken: token
-    });
-    return token;
+    const existingToken = await Token.findOne({ userId });  // Ищем существующий токен по userId
+
+    if (existingToken) {
+        // Если токен уже существует, обновляем его
+        existingToken.accessToken = accessT;  // Обновляем accessToken
+        existingToken.refreshToken = nanoid();  // Создаем новый refreshToken
+        await existingToken.save();  // Сохраняем обновленную запись
+        return existingToken.refreshToken;  // Возвращаем обновленный refreshToken
+    } else {
+        // Если токен не найден, создаем новый
+        const token = nanoid();
+        await Token.create({
+            userId: userId,
+            accessToken: accessT,
+            refreshToken: token
+        });
+        return token;  // Возвращаем новый refreshToken
+    }
 };
 
 // Функція для створення обох токенів
@@ -66,7 +77,7 @@ const replaceTokens = async (accessT, refreshT) => {
     const payload = getPayloadAccessT(accessT);
     const { jti } = payload;
 
-    const token = await Token.findOne({ jti, refreshToken: refreshT });
+    const token = await Token.findOne({ refreshToken: refreshT });
     if (!token) return false;
 
     await Token.deleteOne({ jti, refreshToken: refreshT });

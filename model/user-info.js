@@ -25,11 +25,15 @@ const schema = new Schema({
 		type: SchemaTypes.Number,
 		default: null
 	},
-	resetToken: {
+	provider: {
+		type: SchemaTypes.String,
+		default: ""
+	},
+	resetTokenPassword: {
 		type: String,
 		default: null
 	},
-	resetTokenExpiration: {
+	resetTokenExpirationPassword: {
 		type: Date,
 		default: null
 	}

@@ -1,7 +1,7 @@
 import userModel from '../model/user-info.js';
 import bcrypt from 'bcrypt';
 
-const createUser = async (login, password, email) => {
+const createUser = async (login, password, email, provider) => {
   // Хешуємо пароль
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -9,7 +9,8 @@ const createUser = async (login, password, email) => {
   const newUser = new userModel({
     login,
     password: hashedPassword,
-    email
+    email,
+    provider: provider
   });
 
   await newUser.save();

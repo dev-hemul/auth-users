@@ -9,6 +9,7 @@ import {userSchema} from '../helpers/userSchemaValidation.js';
 import bcrypt from 'bcrypt';
 import {OAuth2Client} from 'google-auth-library';
 import axios from 'axios';
+import mongoose from 'mongoose';
 
 const router = Router();
 const ajv = new Ajv();
@@ -78,7 +79,8 @@ router.post('/strategy/local/registration', async (req, res) => {
 	}
 	
 	// Записуємо дані юзера в бд
-	const newUser = await createUser(login, password, email);  // Зберігаємо нового користувача
+	const provider = "local";
+	const newUser = await createUser(login, password, email, provider);  // Зберігаємо нового користувача
 	
 	// Отримуємо ID нового користувача
 	const userId = newUser._id.toString();
@@ -126,7 +128,7 @@ router.post('/google-login', async (req, res) => {
 	const {token} = req.body;
 	
 	if (!token) {
-		return res.status(400).json({error: 'Token is required'});
+		return res.status(400).json({error: 'Токен гугла відстуній!'});
 	}
 	
 	try {
@@ -138,44 +140,36 @@ router.post('/google-login', async (req, res) => {
 		const {email, sub: googleId, name, picture} = userInfoResponse.data;
 		
 		if (!email || !googleId || !name || !picture) {
-			return res.status(400).json({error: 'Incomplete user data from Google'});
+			return res.status(400).json({error: 'Неповні дані користувача від Google'});
 		}
 		
 		// Проверяем, существует ли пользователь в таблице user-info по googleId
-		let user = await userModel.findOne({googleId});
+		let user_info = await userModel.findOne({googleId});
 		
 		// Загружаем аватар пользователя
 		const response = await axios.get(picture, {responseType: 'arraybuffer'});
 		const base64Image = Buffer.from(response.data).toString('base64');
+		console.log("Это гугл айди пользователя:", user_info);
 		
-		if (user) {
+		if (user_info.googleId) {
 			// Если пользователь найден, обновляем аватар
-			user.avatar = base64Image;
-			await user.save(); // Сохраняем пользователя
+			user_info.avatar = base64Image;
+			await user_info.save(); // Сохраняем пользователя
 		}
 		
 		// После того как пользователь найден, ищем его по _id
-		const userId = user._id; // Получаем _id пользователя
+		const userId = new mongoose.Types.ObjectId(user_info._id); // Получаем _id пользователя
+		console.log("Получаем _id пользователя:", userId)
 		
 		// Генерация токенов
 		const tokens = await auth.createTokens({iss: userId}); // Генерация токенов для пользователя
-		
-		// Проверяем, существует ли запись в таблице Token
-		let tokenRecord = await Token.findOneAndUpdate({userId});
-		console.log(tokenRecord);
-		
-		// Если запись с таким userId уже существует, обновляем токены
-		if(tokenRecord !== null) {
-		tokenRecord.accessToken = tokens.accessT;
-		tokenRecord.refreshToken = tokens.refreshT;
-		await tokenRecord.save(); // Обновляем запись
-		}
+		console.log("Генерация токенов для юзера", tokens)
 		
 		// Отправляем ответ с токенами и информацией о пользователе
-		res.json({status: 'ok', message: {...tokens, user}});
+		res.json({status: 'ok', message: {...tokens, user_info}});
 	} catch (error) {
-		console.error('Ошибка при авторизации через Google:', error.message);
-		res.status(500).json({error: 'Ошибка при авторизации через Google'});
+		console.error('Ви не зареєстровані, будь-ласка пройдіть реєстрацію:', error.message);
+		res.status(500).json({error: 'Ви не зареєстровані, будь-ласка пройдіть реєстрацію'});
 	}
 });
 
@@ -204,16 +198,19 @@ router.post('/google-register', async (req, res) => {
 		
 		// Проверяем, существует ли пользователь в таблице user-info по googleId
 		let user = await userModel.findOne({googleId});
-		
+		const provider = "google";
 		if (!user) {
 			// Если пользователь не найден, создаем нового пользователя
 			user = new userModel({
 				googleId,
 				login: name,
 				email,
-				avatar: base64Image
+				avatar: base64Image,
+				provider: provider
 			});
 			await user.save(); // Сохраняем пользователя
+		}else {
+			return res.status(500).json({error: 'Такий юзер вже зареєстрований!'});
 		}
 		
 		// После того как пользователь создан или найден, ищем его по _id
@@ -225,15 +222,15 @@ router.post('/google-register', async (req, res) => {
 		// Проверяем, существует ли запись в таблице Token
 		let tokenRecord = await Token.findOne({userId});
 		
-			// Если записи с таким userId нет, создаем новую запись
+		// Если записи с таким userId нет, создаем новую запись
 		if (!tokenRecord) {
 			tokenRecord = new Token({
 				userId,
 				accessToken: tokens.accessT,
 				refreshToken: tokens.refreshT
 			});
-			}
-			await tokenRecord.save(); // Сохраняем новую запись
+		}
+		await tokenRecord.save(); // Сохраняем новую запись
 		
 		// Отправляем ответ с токенами и информацией о пользователе
 		res.json({status: 'ok', message: {...tokens, user}});

@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import replaceToken from '../auth/replaceToken/replaceToken';
 
 const Profile = () => {
   const [profileData, setProfileData] = useState(null);
   const [error, setError] = useState(null);
-  const [showAvatarWarning, setShowAvatarWarning] = useState(true); // Таймер для блока аватара
+  const [showAvatarWarning, setShowAvatarWarning] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search); // Читаем параметры из адресной строки
-    const accessT = params.get('accessT'); // Получаем accessToken
-
-    const accessToken = localStorage.getItem('accessToken') || accessT;
+    /*const params = new URLSearchParams(window.location.search);
+    const accessT = params.get('accessT');*/
+    
+    
+    const accessToken = localStorage.getItem('accessToken')/* || accessT*/;
+    const refreshToken = localStorage.getItem('refreshToken');
 
     if (!accessToken) {
       setError('Ви не маєте доступ до цієї сторінки. Вам потрібно залогінитись!');
@@ -32,6 +35,11 @@ const Profile = () => {
           }
         );
         setProfileData(data.payload);
+
+        // Запуск обновления токенов
+        if (accessToken && refreshToken) {
+          replaceToken(accessToken, refreshToken);
+        }
       } catch (error) {
         setError('Ваш токен більше не дійсний, залогіньтесь будь-ласка знову');
       }
@@ -40,17 +48,17 @@ const Profile = () => {
     fetchProfileData();
   }, []);
 
-  // Таймер для того щоб сховати блок
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowAvatarWarning(false);
     }, 5000);
 
-    return () => clearTimeout(timer); // Очистка таймера
+    return () => clearTimeout(timer);
   }, []);
 
   const logout = () => {
     localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     navigate('/');
   };
 
@@ -89,7 +97,7 @@ const Profile = () => {
             {profileData.avatar === null && showAvatarWarning ? (
               <div className="p-4 mb-5 border">
                 <strong className="block mb-5 text-gray-500 underline">
-                  Аватар доступний тільки в google авторизації!
+                  Аватар доступний тільки в google або facebook авторизації!
                 </strong>
                 <div className="flex justify-center">
                   <img src="/angry-gif.webp" width="150" alt="" />
