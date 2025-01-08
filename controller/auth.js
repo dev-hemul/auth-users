@@ -78,11 +78,16 @@ const replaceTokens = async (accessT, refreshT) => {
     const { jti } = payload;
 
     const token = await Token.findOne({ refreshToken: refreshT });
-    if (!token) return false;
 
+    if (!token) {
+        console.warn('Refresh token not found in the database.');
+        return false;
+    }
+
+    // Удаление старого токена после успешного создания нового
     await Token.deleteOne({ jti, refreshToken: refreshT });
 
-    // Видалення старої дати закінчення терміну дії
+    // Удаление exp из payload
     delete payload.exp;
 
     return createTokens(payload);

@@ -20,8 +20,6 @@ const GoogleAuthButton = ({type}) => {
 					token: tokenResponse.access_token
 				});
 				
-				console.log('Тут должны быть токены от сервера:', data);
-				
 				if (data.status === 'ok') {
 					toast.success(
 						type === 'register' ? 'Успішна реєстрація' : 'Успішний вхід'

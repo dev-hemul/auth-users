@@ -103,25 +103,35 @@ router.post('/logout', onlyAuthMv, (req, res) => {
 
 // Заміна токену
 router.post('/replaceTokens', async (req, res) => {
-	const {accessT, refreshT} = req.body;
-	console.log(`Токен доступу з фронта: ${accessT}`);
-	console.log(`Рефреш токен з фронта: ${refreshT}`);
-	if (!accessT || !refreshT) {
-		return res.status(400).json({error: 'Необхідний Access Token і Refresh токен'});
-	}
-	const validSign = auth.verifySign(accessT);
-	if (validSign !== true) {
-		return res.status(403).json({error: 'Invalid access token signature'});
-	}
-	
-	const newTokens = await auth.replaceTokens(accessT, refreshT);
-	console.log(newTokens);
-	if (!newTokens) {
-		return res.status(400).json({error: 'Failed to refresh tokens'});
-	}
-	console.log(newTokens)
-	return res.json({status: 'ok', payload: {Newtokens: newTokens}});
+    const { accessT, refreshT } = req.body;
+
+    console.log(`Access Token from client: ${accessT}`);
+    console.log(`Refresh Token from client: ${refreshT}`);
+
+    if (!accessT || !refreshT) {
+        return res.status(400).json({ error: 'Access Token and Refresh Token are required' });
+    }
+
+    try {
+        const validSign = auth.verifySign(accessT);
+        if (!validSign) {
+            return res.status(403).json({ error: 'Invalid access token signature' });
+        }
+
+        const newTokens = await auth.replaceTokens(accessT, refreshT);
+
+        if (!newTokens) {
+            return res.status(400).json({ error: 'Failed to refresh tokens' });
+        }
+
+        console.log('New tokens generated:', newTokens);
+        return res.json({ status: 'ok', payload: { Newtokens: newTokens } });
+    } catch (error) {
+        console.error('Error in /replaceTokens route:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
 });
+
 
 
 router.post('/google-login', async (req, res) => {
@@ -149,7 +159,6 @@ router.post('/google-login', async (req, res) => {
 		// Загружаем аватар пользователя
 		const response = await axios.get(picture, {responseType: 'arraybuffer'});
 		const base64Image = Buffer.from(response.data).toString('base64');
-		console.log("Это гугл айди пользователя:", user_info);
 		
 		if (user_info.googleId) {
 			// Если пользователь найден, обновляем аватар
@@ -159,16 +168,13 @@ router.post('/google-login', async (req, res) => {
 		
 		// После того как пользователь найден, ищем его по _id
 		const userId = new mongoose.Types.ObjectId(user_info._id); // Получаем _id пользователя
-		console.log("Получаем _id пользователя:", userId)
 		
 		// Генерация токенов
 		const tokens = await auth.createTokens({iss: userId}); // Генерация токенов для пользователя
-		console.log("Генерация токенов для юзера", tokens)
 		
 		// Отправляем ответ с токенами и информацией о пользователе
 		res.json({status: 'ok', message: {...tokens, user_info}});
 	} catch (error) {
-		console.error('Ви не зареєстровані, будь-ласка пройдіть реєстрацію:', error.message);
 		res.status(500).json({error: 'Ви не зареєстровані, будь-ласка пройдіть реєстрацію'});
 	}
 });

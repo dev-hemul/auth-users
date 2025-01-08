@@ -31,6 +31,8 @@
   
         if (data.status === 'ok') {
           toast.success('Ви успішно увійшли в систему!');
+          console.log(data.message.accessT)
+          console.log(data.message.refreshT)
           localStorage.setItem('accessToken', data.message.accessT);
           localStorage.setItem('refreshToken', data.message.refreshT);
           navigate('/profile');

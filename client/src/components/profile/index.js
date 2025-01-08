@@ -38,7 +38,8 @@ const Profile = () => {
 
         // Запуск обновления токенов
         if (accessToken && refreshToken) {
-          replaceToken(accessToken, refreshToken);
+          console.log("Токен доступу на фронті:", accessToken, "Рефреш токен на фронті", refreshToken);
+          await replaceToken(accessToken, refreshToken);
         }
       } catch (error) {
         setError('Ваш токен більше не дійсний, залогіньтесь будь-ласка знову');
