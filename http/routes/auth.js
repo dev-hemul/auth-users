@@ -7,7 +7,6 @@ import onlyAuthMv from './mv/onlyAuth.js';
 import Ajv from 'ajv';
 import {userSchema} from '../helpers/userSchemaValidation.js';
 import bcrypt from 'bcrypt';
-import {OAuth2Client} from 'google-auth-library';
 import axios from 'axios';
 import mongoose from 'mongoose';
 
@@ -15,13 +14,9 @@ const router = Router();
 const ajv = new Ajv();
 const validate = ajv.compile(userSchema);
 
-const GOOGLE_CLIENT_ID = process.env.CLIENT_ID_GOOGLE;
-const oAuth2Client = new OAuth2Client(GOOGLE_CLIENT_ID);
-
 const FB_CLIENT_ID = process.env.FB_CLIENT_ID;
 const FB_CLIENT_SECRET = process.env.FB_CLIENT_SECRET;
-const FB_REDIRECT_URI = process.env.FB_REDIRECT_URI;
-const FRONTEND_URL = process.env.FB_REDIRECT_FRONT;
+const FB_REDIRECT_URI = process.env.FB_REDIRECT_FRONT;
 
 // Приходять login + pwd. Створюємо токен
 router.post('/strategy/local/login', async (req, res) => {
@@ -119,20 +114,19 @@ router.post('/replaceTokens', async (req, res) => {
         }
 
         const newTokens = await auth.replaceTokens(accessT, refreshT);
+	    console.log("Новые сгенерированые токены", {...newTokens})
 
         if (!newTokens) {
             return res.status(400).json({ error: 'Failed to refresh tokens' });
         }
 
         console.log('New tokens generated:', newTokens);
-        return res.json({ status: 'ok', payload: { Newtokens: newTokens } });
+        return res.json({ status: 'ok',  ...newTokens });
     } catch (error) {
         console.error('Error in /replaceTokens route:', error);
         return res.status(500).json({ error: 'Internal server error' });
     }
 });
-
-
 
 router.post('/google-login', async (req, res) => {
 	const {token} = req.body;
@@ -142,7 +136,7 @@ router.post('/google-login', async (req, res) => {
 	}
 	
 	try {
-		// Получаем данные о пользователе через Google API
+		// Отримуємо дані про користувача через Google API
 		const userInfoResponse = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
 			headers: {Authorization: `Bearer ${token}`}
 		});
@@ -153,26 +147,26 @@ router.post('/google-login', async (req, res) => {
 			return res.status(400).json({error: 'Неповні дані користувача від Google'});
 		}
 		
-		// Проверяем, существует ли пользователь в таблице user-info по googleId
+		// Перевіряємо, чи існує користувач у таблиці user-info за googleId
 		let user_info = await userModel.findOne({googleId});
 		
-		// Загружаем аватар пользователя
+		// Завантажуємо аватар користувача
 		const response = await axios.get(picture, {responseType: 'arraybuffer'});
 		const base64Image = Buffer.from(response.data).toString('base64');
 		
 		if (user_info.googleId) {
-			// Если пользователь найден, обновляем аватар
+			// Якщо користувач знайдено, оновлюємо аватар
 			user_info.avatar = base64Image;
-			await user_info.save(); // Сохраняем пользователя
+			await user_info.save(); // Зберігаємо користувача
 		}
 		
-		// После того как пользователь найден, ищем его по _id
-		const userId = new mongoose.Types.ObjectId(user_info._id); // Получаем _id пользователя
+		// Після того, як користувач знайдений, шукаємо його по _id
+		const userId = new mongoose.Types.ObjectId(user_info._id); // Отримуємо _id користувача
 		
 		// Генерация токенов
-		const tokens = await auth.createTokens({iss: userId}); // Генерация токенов для пользователя
+		const tokens = await auth.createTokens({iss: userId}); // Генерація токенів для користувача
 		
-		// Отправляем ответ с токенами и информацией о пользователе
+		// Надсилаємо відповідь з токенами та інформацією про користувача
 		res.json({status: 'ok', message: {...tokens, user_info}});
 	} catch (error) {
 		res.status(500).json({error: 'Ви не зареєстровані, будь-ласка пройдіть реєстрацію'});
@@ -187,7 +181,7 @@ router.post('/google-register', async (req, res) => {
 	}
 	
 	try {
-		// Получаем данные о пользователе через Google API
+		// Отримуємо дані про користувача через Google API
 		const userInfoResponse = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
 			headers: {Authorization: `Bearer ${token}`}
 		});
@@ -202,11 +196,11 @@ router.post('/google-register', async (req, res) => {
 		const response = await axios.get(picture, {responseType: 'arraybuffer'});
 		const base64Image = Buffer.from(response.data).toString('base64');
 		
-		// Проверяем, существует ли пользователь в таблице user-info по googleId
+		// Перевіряємо, чи існує користувач у таблиці user-info за googleId
 		let user = await userModel.findOne({googleId});
 		const provider = "google";
 		if (!user) {
-			// Если пользователь не найден, создаем нового пользователя
+			// Якщо користувача не знайдено, то створюємо нового
 			user = new userModel({
 				googleId,
 				login: name,
@@ -214,21 +208,21 @@ router.post('/google-register', async (req, res) => {
 				avatar: base64Image,
 				provider: provider
 			});
-			await user.save(); // Сохраняем пользователя
+			await user.save(); // Зберігаємо користувача
 		}else {
 			return res.status(500).json({error: 'Такий юзер вже зареєстрований!'});
 		}
 		
-		// После того как пользователь создан или найден, ищем его по _id
-		const userId = user._id; // Получаем _id пользователя
+			// Після того, як користувач створений або знайдений, шукаємо його по _id
+		const userId = user._id; // Отримуємо _id користувача
 		
-		// Генерация токенов
+		// Генерація токенів
 		const tokens = await auth.createTokens({iss: userId}); // Генерация токенов для пользователя
 		
-		// Проверяем, существует ли запись в таблице Token
+		// Перевіряємо, чи існує запис у таблиці Token
 		let tokenRecord = await Token.findOne({userId});
 		
-		// Если записи с таким userId нет, создаем новую запись
+		// Якщо запису з таким userId немає, створюємо новий запис
 		if (!tokenRecord) {
 			tokenRecord = new Token({
 				userId,
@@ -236,29 +230,24 @@ router.post('/google-register', async (req, res) => {
 				refreshToken: tokens.refreshT
 			});
 		}
-		await tokenRecord.save(); // Сохраняем новую запись
+		await tokenRecord.save(); // Зберігаємо новий запис
 		
-		// Отправляем ответ с токенами и информацией о пользователе
+		// Надсилаємо відповідь з токенами та інформацією про користувача
 		res.json({status: 'ok', message: {...tokens, user}});
 	} catch (error) {
-		console.error('Ошибка при регистрации через Google:', error.message);
-		res.status(500).json({error: 'Ошибка при регистрации через Google'});
+		console.error('Помилка під час реєстрації через Google:', error.message);
+		res.status(500).json({error: 'Помилка під час реєстрації через Google'});
 	}
 });
 
 
-// Маршрут для початку авторизації через Facebook
-router.get('/facebook', (req, res) => {
-	const fbAuthUrl = `https://www.facebook.com/v15.0/dialog/oauth?client_id=${FB_CLIENT_ID}&redirect_uri=${FB_REDIRECT_URI}&scope=public_profile`;
-	res.redirect(fbAuthUrl);
-});
-
 // Обробка редиректу від Facebook
-router.get('/facebook/callback', async (req, res) => {
-	const {code} = req.query;
+router.post('/facebook/callback', async (req, res) => {
+	const {code} = req.body;
+	console.log("код фесбука на сервере", code)
 	
 	if (!code) {
-		return res.status(400).json({error: 'Authorization code not found'});
+		return res.status(400).json({error: 'Код доступу фейсбука не отриманий'});
 	}
 	
 	try {
@@ -274,7 +263,6 @@ router.get('/facebook/callback', async (req, res) => {
 				}
 			}
 		);
-		
 		const accessToken = tokenResponse.data.access_token;
 		
 		// Запит даних користувача
@@ -288,20 +276,22 @@ router.get('/facebook/callback', async (req, res) => {
 			}
 		);
 		
-		const {id: facebookId, name, email, picture, birthday} = userResponse.data;
+		const {id: facebookId, name, email, picture} = userResponse.data;
 		const profilePictureUrl = picture?.data?.url;
 		const response = await axios.get(profilePictureUrl, {responseType: 'arraybuffer'});
 		const base64Image = Buffer.from(response.data).toString('base64');
 		
 		// Перевірка, чи є користувач у БД
 		let user = await userModel.findOne({facebookId});
+		const provider = "facebook";
 		
 		if (!user) {
 			user = new userModel({
 				facebookId,
 				login: name,
 				email: email,
-				avatar: base64Image
+				avatar: base64Image,
+				provider: provider
 			});
 			
 			await user.save(); // Зберігаємо нового користувача до бази
@@ -313,18 +303,28 @@ router.get('/facebook/callback', async (req, res) => {
 			await user.save();
 		}
 		
+		// Після того, як користувач створений або знайдений, шукаємо його по _id
+		const userId = user._id; // Отримуємо _id користувача
+		
 		// Генерація токенів
-		const userId = user._id.toString();
 		const tokens = await auth.createTokens({iss: userId});
 		
-		await Token.findOneAndUpdate(
-			{userId},
-			{refreshToken: tokens.refreshT, accessToken: tokens.accessT},
-			{upsert: true}
-		);
+		let tokenRecord = await Token.findOne({userId});
 		
-		const frontendRedirectUrl = `${FRONTEND_URL}/profile?accessT=${tokens.accessT}&refreshT=${tokens.refreshT}`;
-		res.redirect(frontendRedirectUrl);
+		// Якщо запису з таким userId немає, створюємо новий запис
+		if (!tokenRecord) {
+			tokenRecord = new Token({
+				userId,
+				accessToken: tokens.accessT,
+				refreshToken: tokens.refreshT
+			});
+		}
+		
+		await tokenRecord.save(); // Сохраняем новую запись
+		
+		// Надсилаємо відповідь з токенами та інформацією про користувача
+		res.status(200).json({status: 'ok', message: {...tokens}});
+		
 		
 	} catch (error) {
 		console.error('Помилка при авторизації через Facebook:', error.message);

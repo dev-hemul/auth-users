@@ -5,7 +5,7 @@ import Token from './../model/auth.js';
 import { nanoid } from 'nanoid';
 
 const alg = 'RS512';
-const lifedur = 3 * 60 * 1000;  // 3 хвилин
+const lifedur = 2 * 60 * 1000;  // 3 хвилин
 
 const rootdir = process.cwd();
 

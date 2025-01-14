@@ -3,37 +3,40 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto'; // Для генерації токенів скидання пароля
 import sendResetPasswordEmail from './emailController.js';
 
+// Функція для генерації токена
 const generateResetToken = () => {
   return crypto.randomBytes(32).toString('hex');
 };
 
-// Контролер для запиту на скидання пароля
+// Контролер для запиту скидання пароля
 export const requestPasswordReset = async (req, res) => {
   const { email } = req.body;
 
   try {
     const user = await userModel.findOne({ email });
     if (!user) {
-      return res.status(400).json({ error: 'Користувача з таким email не знайдено!' });
+      return res.status(400).json({ error: 'Пользователь с таким email не найден!' });
     }
 
-    // Генерація токена скидання пароля
+    // Генерація токена для скидання пароля
     const resetToken = generateResetToken();
-    const resetTokenExpiration = Date.now() + 3600000; // Токен дійсний 1 год
+    const resetTokenExpiration = Date.now() + 3600000; // Токен діє 1 годину
 
-    // Зберігаємо токен та термін його дії в базі
-    user.resetToken = resetToken;
-    user.resetTokenExpiration = resetTokenExpiration;
+    // Зберігаємо токен та термін дії в базі даних
+    user.resetTokenPassword = resetToken;
+    user.resetTokenExpirationPassword = resetTokenExpiration;
     await user.save();
 
-    // Надсилання листа з посиланням на скидання пароля
-    const url = process.env.NODE_ENV === 'production' ? 'https://evgeniiviter.site/' : 'http://localhost:3000/';
+    // Надсилаємо листа з посиланням для скидання пароля
+    const url = process.env.NODE_ENV === 'production'
+      ? 'https://evgeniiviter.site/'
+      : 'http://localhost:3000/';
     const resetLink = `${url}reset-password/${resetToken}`;
     await sendResetPasswordEmail(user.email, resetLink);
 
     return res.status(200).json({ status: 'ok', message: 'Посилання для скидання пароля відправлено на ваш email' });
   } catch (error) {
-    console.error('Помилка при запиті на скидання пароля:', error);
+    console.error('Помилка при запиті скидання пароля:', error);
     return res.status(500).json({ error: 'Помилка при обробці запиту на скидання пароля' });
   }
 };
@@ -45,12 +48,12 @@ export const resetPassword = async (req, res) => {
   try {
     // Знаходимо користувача за токеном скидання
     const user = await userModel.findOne({
-      resetToken: token,
-      resetTokenExpiration: { $gt: Date.now() },
+      resetTokenPassword: token,
+      resetTokenExpirationPassword: { $gt: Date.now() },
     });
 
     if (!user) {
-      return res.status(400).json({ error: 'Неправильний чи прострочений токен!' });
+      return res.status(400).json({ error: 'Вийшов термін дії токену' });
     }
 
     // Хешуємо новий пароль
@@ -58,8 +61,8 @@ export const resetPassword = async (req, res) => {
 
     // Оновлюємо пароль користувача
     user.password = hashedPassword;
-    user.resetToken = undefined; // Очищаємо токен
-    user.resetTokenExpiration = undefined; // Очищаємо термін дії токена
+    user.resetTokenPassword = null; // Очищаємо токен
+    user.resetTokenExpirationPassword = null; // Очищаємо термін дії токена
     await user.save();
 
     return res.json({ message: 'Пароль успішно скинутий' });
