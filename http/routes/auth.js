@@ -9,6 +9,8 @@ import {userSchema} from '../helpers/userSchemaValidation.js';
 import bcrypt from 'bcrypt';
 import axios from 'axios';
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const router = Router();
 const ajv = new Ajv();
