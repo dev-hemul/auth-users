@@ -5,7 +5,7 @@ const FacebookAuthButton = () => {
 	const startFacebookAuth = () => {
     const FACEBOOK_CLIENT_ID = process.env.REACT_APP_CLIENT_ID_FACEBOOK;
     const REACT_APP_FACEBOOK_REDIRECT = process.env.REACT_APP_MAIN;
-		window.location.href = `https://www.facebook.com/v15.0/dialog/oauth?client_id=1161748475475183&redirect_uri=${REACT_APP_FACEBOOK_REDIRECT}&scope=public_profile`;
+		window.location.href = `https://www.facebook.com/v15.0/dialog/oauth?client_id=${FACEBOOK_CLIENT_ID}&redirect_uri=${REACT_APP_FACEBOOK_REDIRECT}&scope=public_profile`;
 	}
 	
 	
