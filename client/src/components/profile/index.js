@@ -118,15 +118,15 @@ const Profile = () => {
 						)}
 					</div>
 					<p className="text-lg mb-4">
-						<span className="font-medium text-gray-600">User ID:</span>{' '}
+						<span className="block font-medium text-gray-600 text-center">User ID:</span>{' '}
 						{profileData.uid}
 					</p>
 					<p className="text-lg mb-4">
-						<span className="font-medium text-gray-600">Ваш логін:</span>{' '}
+						<span className="block font-medium text-gray-600 text-center">Ваш логін:</span>{' '}
 						{profileData.login}
 					</p>
 					<p className="text-lg mb-4">
-						<span className="font-medium text-gray-600">Ваш E-mail:</span>{' '}
+						<span className="block font-medium text-gray-600 text-center">Ваш E-mail:</span>{' '}
 						{profileData.email}
 					</p>
 				</div>
