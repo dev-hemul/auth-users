@@ -265,6 +265,11 @@ router.post('/facebook/callback', async (req, res) => {
 				}
 			}
 		);
+		
+		if (!tokenResponse.data.access_token) {
+    return res.status(400).json({ error: 'Не удалось получить access_token от Facebook' });
+}
+		
 		const accessToken = tokenResponse.data.access_token;
 		
 		// Запит даних користувача

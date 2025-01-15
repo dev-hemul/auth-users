@@ -19,7 +19,7 @@ const LoginPage = () => {
 		const code = urlParams.get("code");
 		
 		if (code) {
-			// Отправляем `code` на сервер
+			// Відправляємо 'code' на сервер
 			const sendCodeToServer = async () => {
 				try {
 					const response = await axios.post(process.env.REACT_APP_FACEBOOK_REDIRECT, {
@@ -29,23 +29,23 @@ const LoginPage = () => {
 					if (response.data.status === "ok") {
 						const {accessT, refreshT} = response.data.message;
 						
-						// Сохраняем токены в localStorage
+						// Зберігаємо токени в localStorage
 						localStorage.setItem("accessToken", accessT);
 						localStorage.setItem("refreshToken", refreshT);
 						
-						// Перенаправляем пользователя, например, на страницу профиля
+						// Перенаправляємо користувача, на сторінку профілю
 						navigate("/profile");
 					} else {
-						console.error("Ошибка авторизации через Facebook");
+						console.error("Помилка авторизації через Facebook");
 					}
 				} catch (error) {
-					console.error("Ошибка при запросе на сервер:", error.message);
+					console.error("Помилка при запиті на сервер:", error.message);
 				}
 			};
 			
 			sendCodeToServer();
 			
-			// Очищаем URL от параметров
+			// Очищаємо URL від параметрів
 			window.history.replaceState({}, document.title, "/");
 		}
 	}, [navigate]);

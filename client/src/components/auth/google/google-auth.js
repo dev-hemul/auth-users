@@ -7,14 +7,14 @@ import {FcGoogle} from 'react-icons/fc';
 const GoogleAuthButton = ({type}) => {
 	const navigate = useNavigate();
 	
-	// Настройка Google авторизации
+	// Налаштування Google авторизації
 	const login = useGoogleLogin({
 		onSuccess: async (tokenResponse) => {
 			try {
 				const apiUrl =
 					type === 'login'
-						? process.env.REACT_APP_GOOGLE_LOGIN_URL // URL для регистрации
-						: process.env.REACT_APP_GOOGLE_REGISTER_URL; // URL для авторизации
+						? process.env.REACT_APP_GOOGLE_LOGIN_URL
+						: process.env.REACT_APP_GOOGLE_REGISTER_URL;
 				
 				const {data} = await axios.post(apiUrl, {
 					token: tokenResponse.access_token
@@ -25,11 +25,10 @@ const GoogleAuthButton = ({type}) => {
 						type === 'register' ? 'Успішна реєстрація' : 'Успішний вхід'
 					);
 					
-					// Сохраняем токены в localStorage
 					localStorage.setItem('accessToken', data.message.accessT);
 					localStorage.setItem('refreshToken', data.message.refreshT);
 					
-					navigate('/profile'); // Перенаправление пользователя
+					navigate('/profile');
 				} else {
 					toast.error(
 						type === 'register'
@@ -40,11 +39,11 @@ const GoogleAuthButton = ({type}) => {
 			} catch (error) {
 				console.error('Google Auth Error:', error.message);
 				
-				// Если ошибка имеет ответ от сервера с полем error
+				// Якщо помилка має відповідь від сервера з полем error
 				if (error.response && error.response.data && error.response.data.error) {
-					toast.error(error.response.data.error);  // Используем сообщение ошибки с сервера
+					toast.error(error.response.data.error);  // Використовуємо повідомлення помилки із сервера
 				} else {
-					// В случае другого типа ошибки, например, если нет ответа от сервера
+					// У випадку іншого типу помилки, наприклад, якщо немає відповіді від сервера
 					toast.error(
 						type === 'register'
 							? 'Виникла помилка при реєстрації'

@@ -35,20 +35,20 @@ const createRefreshToken = async (jti, userId, accessT) => {
     const existingToken = await Token.findOne({ userId });  // Ищем существующий токен по userId
 
     if (existingToken) {
-        // Если токен уже существует, обновляем его
-        existingToken.accessToken = accessT;  // Обновляем accessToken
-        existingToken.refreshToken = nanoid();  // Создаем новый refreshToken
-        await existingToken.save();  // Сохраняем обновленную запись
-        return existingToken.refreshToken;  // Возвращаем обновленный refreshToken
+        // Якщо токен вже існує, оновлюємо його
+        existingToken.accessToken = accessT;  // Оновлюємо accessToken
+        existingToken.refreshToken = nanoid();  // Створюємо новий refreshToken
+        await existingToken.save();  // Зберігаємо оновлений запис
+        return existingToken.refreshToken;  // Повертаємо оновлений refreshToken
     } else {
-        // Если токен не найден, создаем новый
+        // Якщо токен не знайдено, створюємо новий
         const token = nanoid();
         await Token.create({
             userId: userId,
             accessToken: accessT,
             refreshToken: token
         });
-        return token;  // Возвращаем новый refreshToken
+        return token;  // Повертаємо новий refreshToken
     }
 };
 
@@ -84,10 +84,10 @@ const replaceTokens = async (accessT, refreshT) => {
         return false;
     }
 
-    // Удаление старого токена после успешного создания нового
+    // Видалення старого токена після успішного створення нового
     await Token.deleteOne({ jti, refreshToken: refreshT });
 
-    // Удаление exp из payload
+    // Видалення exp з payload
     delete payload.exp;
 
     return createTokens(payload);
