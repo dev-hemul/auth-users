@@ -10,7 +10,7 @@ const lifedur = 2 * 60 * 1000;  // 3 хвилин
 const rootdir = process.cwd();
 
 const privateKeyPath = process.env.PRIVATE_KEY_PATH || path.join(rootdir, 'keys/privateKey.pem');
-const publicKeyPath = process.env.PUBLIC_KEY_PATH || path.join(rootdir, 'keys/privateKey.pem');
+const publicKeyPath = process.env.PUBLIC_KEY_PATH || path.join(rootdir, 'keys/publicKey.pem');
 
 const priv = await fs.readFile(privateKeyPath, 'utf8');
 const pub = await fs.readFile(publicKeyPath, 'utf8');
