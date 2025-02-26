@@ -13,9 +13,9 @@ const FacebookAuthButton = () => {
 		<div>
 			<button
 				onClick={startFacebookAuth}
-				className="flex items-center gap-2 border border-gray-300 px-4 py-2 bg-blue-700 rounded-md hover:bg-blue-600"
+				className="flex items-center gap-2 border border-gray-300 px-4 py-2 bg-blue-700 rounded-md hover:bg-blue-600 dark:bg-transparent dark:hover:bg-white"
 			>
-				<FaFacebookF className="text-white" size={22}/>
+				<FaFacebookF className="text-white dark:text-blue-500" size={22}/>
 			</button>
 		</div>
 	);

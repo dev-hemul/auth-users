@@ -5,8 +5,10 @@ import {useNavigate} from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import GoogleAuthButton from '../google/google-auth';
 import FacebookAuthButton from '../facebook/facebook-auth';
+import {IoMoonOutline, IoMoon} from "react-icons/io5";
 
-const LoginPage = () => {
+
+const LoginPage = ({ toggleTheme, theme }) => {
 	const [isLoginMode, setIsLoginMode] = useState(true);
 	const [isResetMode, setIsResetMode] = useState(false);
 	const [login, setLogin] = useState('');
@@ -133,18 +135,24 @@ const LoginPage = () => {
 	
 	return (
 		<div
-			className="min-h-screen flex items-center justify-center px-4 bg-gray-100">
+			className="min-h-screen flex items-center justify-center px-4 bg-gray-100 dark:bg-gray-900 transition-colors duration-700 ease-in-out">
 			<div
-				className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
+				className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md dark: dark:bg-gray-800 transition-colors duration-800 ease-in-out">
 				{!isResetMode ? (
 					<>
-						<h2 className="text-2xl font-bold text-center text-gray-800">
+						<button
+							className="text-gray-800 dark:text-white transition-colors duration-1000 ease-in-out"
+							type="button"
+						onClick={toggleTheme}>
+							{theme === "dark" ? <IoMoon /> : <IoMoonOutline />}
+						</button>
+						<h2 className="text-2xl font-bold text-center text-gray-800 dark:text-white transition-colors duration-1000 ease-in-out">
 							{isLoginMode ? 'Увійти в систему' : 'Реєстрація'}
 						</h2>
-						<form className="space-y-4" onSubmit={handleSubmit}>
-							<div>
+						<form onSubmit={handleSubmit}>
+							<div className="mb-4">
 								<label htmlFor="login"
-								       className="block text-sm font-medium text-gray-700">
+								       className="block text-sm font-medium text-gray-800 dark:text-white transition-colors duration-1000 ease-in-out">
 									Логін
 								</label>
 								<input
@@ -153,14 +161,14 @@ const LoginPage = () => {
 									value={login}
 									onChange={(e) => setLogin(e.target.value)}
 									required
-									className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-									placeholder="Логін має бути від 3 символів"
+									className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm placeholder-gray-400 dark:placeholder-gray-500 dark:bg-gray-800 dark:text-white"
+                  placeholder="Логін має бути від 3 символів"
 								/>
 							</div>
 							{!isLoginMode && (
-								<div>
+								<div className="mb-4">
 									<label htmlFor="email"
-									       className="block text-sm font-medium text-gray-700">
+									       className="block text-sm font-medium text-gray-700 dark:text-white transition-colors duration-1000 ease-in-out ">
 										Email
 									</label>
 									<input
@@ -169,14 +177,14 @@ const LoginPage = () => {
 										value={email}
 										onChange={(e) => setEmail(e.target.value)}
 										required
-										className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+										className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm placeholder-gray-400 dark:placeholder-gray-500 dark:bg-gray-800 dark:text-white"
 										placeholder='В форматі "test@gmail.com"'
 									/>
 								</div>
 							)}
-							<div>
+							<div className="mb-10">
 								<label htmlFor="password"
-								       className="block text-sm font-medium text-gray-700">
+								       className="block text-sm font-medium text-gray-700 dark:text-white transition-colors duration-1000 ease-in-out">
 									Пароль
 								</label>
 								<input
@@ -185,13 +193,13 @@ const LoginPage = () => {
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
 									required
-									className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+									className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm placeholder-gray-400 dark:placeholder-gray-500 dark:bg-gray-800 dark:text-white"
 									placeholder="Пароль має бути від 3 символів"
 								/>
 							</div>
 							<button
 								type="submit"
-								className="w-full py-2 px-4 text-white bg-emerald-500 hover:bg-emerald-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md focus:outline-none text-sm font-medium"
+								className="w-full py-3 px-4 text-white bg-emerald-500 hover:bg-emerald-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md focus:outline-none text-sm font-medium"
 							>
 								{isLoginMode ? 'Увійти' : 'Зареєструватись'}
 							</button>
@@ -204,14 +212,14 @@ const LoginPage = () => {
 							
 							</div>
 							<div>
-								<FacebookAuthButton/>
+								<FacebookAuthButton />
 							</div>
 						
 						</div>
 						<div className="text-sm text-center">
 							{isLoginMode ? (
 								<>
-									<p className="mb-2">
+									<p className="mb-2 dark:text-white transition-colors duration-1000 ease-in-out">
 										Забули свій пароль?{' '}
 										<button
 											type="button"
@@ -224,7 +232,7 @@ const LoginPage = () => {
 											Відновити
 										</button>
 									</p>
-									<p>
+									<p className="dark:text-white transition-colors duration-1000 ease-in-out">
 										Немає облікового запису?{' '}
 										<button
 											type="button"
@@ -236,12 +244,12 @@ const LoginPage = () => {
 									</p>
 								</>
 							) : (
-								<p>
+								<p className="dark:text-white transition-colors duration-1000 ease-in-out">
 									Вже є акаунт?{' '}
 									<button
 										type="button"
 										onClick={() => setIsLoginMode(true)}
-										className="text-indigo-600 hover:text-indigo-500 font-medium"
+										className="text-green-600 hover:text-green-500 hover:underline font-medium "
 									>
 										Увійти
 									</button>
@@ -252,12 +260,12 @@ const LoginPage = () => {
 				) : (
 					<>
 						<h2
-							className="text-2xl font-bold text-center text-gray-800">Відновлення
+							className="text-2xl font-bold text-center text-gray-800 dark:text-white">Відновлення
 							пароля</h2>
 						<form className="space-y-4" onSubmit={handlePasswordReset}>
 							<div>
 								<label htmlFor="email"
-								       className="block text-sm font-medium text-gray-700">
+								       className="block text-sm font-medium text-gray-700 dark:text-white">
 									Email
 								</label>
 								<input
@@ -266,12 +274,12 @@ const LoginPage = () => {
 									value={email}
 									onChange={(e) => setEmail(e.target.value)}
 									required
-									className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+									className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-800 dark:text-white"
 								/>
 							</div>
 							<button
 								type="submit"
-								className="w-full py-2 px-4 text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md focus:outline-none text-sm font-medium"
+								className="w-full py-2 px-4 text-white  bg-indigo-600 hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md focus:outline-none text-sm font-medium"
 							>
 								Відновити
 							</button>
@@ -279,8 +287,8 @@ const LoginPage = () => {
 						<button
 							type="button"
 							onClick={() => setIsResetMode(false)}
-							className="w-full mt-4 text-indigo-600 hover:underline text-sm"
-						>
+							className="w-full mt-4 hover:underline text-sm dark:text-white">
+						
 							Повернутись до входу
 						</button>
 					</>

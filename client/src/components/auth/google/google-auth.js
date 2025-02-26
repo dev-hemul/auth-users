@@ -69,7 +69,7 @@ const GoogleAuthButton = ({type}) => {
 			className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-md  hover:bg-gray-100"
 			title={type === 'register' ? 'Реєстрація через Google' : 'Вхід через Google'}
 		>
-			<FcGoogle size={25}/>
+			<FcGoogle size={23}/>
 		</button>
 	);
 };
