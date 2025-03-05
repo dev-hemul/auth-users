@@ -1,6 +1,17 @@
 {
-  "main_title": "Shall we count?",
-  "change_language": "Change language",
-  "counter": "counter",
-  "toggle_theme": "Toggle Theme"
+  "Log_in_in_system": "Log in",
+  "Login": "Login",
+  "Login_placeholder": "Login must be at least 3 characters long",
+  "Password": "Password",
+  "Password_placeholder": "Password must be at least 3 characters long",
+  "Email_placeholder": "On format test@gmail.com",
+  "Log_in": "Log in",
+  "Register": "Register",
+  "Remember_password": "Forgot your password?",
+  "Restore": "Restore",
+  "Have_an_account": "Don't have an account?",
+  "Already_have_an_account": "Already have an account?",
+  "Password_recovery": "Password recovery",
+  "Return_to_login": "Return to login",
+  "Incorrect_password": "Incorrect password!"
 }

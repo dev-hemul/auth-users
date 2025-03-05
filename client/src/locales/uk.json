@@ -4,10 +4,14 @@
   "Login_placeholder": "Логін має бути від 3 символів",
   "Password": "Пароль",
   "Password_placeholder": "Пароль має бути від 3 символів",
+  "Email_placeholder": "В форматі test@gmail.com",
   "Log_in": "Увійти",
+  "Register": "Зареєструватись",
   "Remember_password": "Забули свій пароль?",
   "Restore": "Відновити",
-  "Have_an_account?": "Немає облікового запису?",
-  "Register": "Зареєструватись"
-
+  "Have_an_account": "Немає облікового запису?",
+  "Already_have_an_account": "Вже є акаунт?",
+  "Password_recovery": "Відновлення пароля",
+  "Return_to_login": "Повернутись до входу",
+  "Incorrect_password": "Не вірний пароль!"
 }

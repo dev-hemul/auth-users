@@ -13,7 +13,7 @@ i18n
       en: { translation: en },
       uk: { translation: uk },
     },
-    fallbackLng: "en", // Мова по замовчуванню
+    fallbackLng: "uk", // Мова по замовчуванню
     interpolation: { escapeValue: false },
   });
 
