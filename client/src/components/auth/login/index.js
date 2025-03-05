@@ -137,14 +137,14 @@ const LoginPage = ({ toggleTheme, theme }) => {
 		<div
 			className="min-h-screen flex items-center justify-center px-4 bg-gray-100 dark:bg-gray-900 transition-colors duration-700 ease-in-out">
 			<div
-				className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md dark: dark:bg-gray-800 transition-colors duration-800 ease-in-out">
+				className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md dark:bg-gray-800 transition-colors duration-800 ease-in-out">
 				{!isResetMode ? (
 					<>
 						<button
 							className="text-gray-800 dark:text-white transition-colors duration-1000 ease-in-out"
 							type="button"
 						onClick={toggleTheme}>
-							{theme === "dark" ? <IoMoon /> : <IoMoonOutline />}
+							{theme === "dark" ? <IoMoon size="20"/> : <IoMoonOutline size="20"/>}
 						</button>
 						<h2 className="text-2xl font-bold text-center text-gray-800 dark:text-white transition-colors duration-1000 ease-in-out">
 							{isLoginMode ? 'Увійти в систему' : 'Реєстрація'}

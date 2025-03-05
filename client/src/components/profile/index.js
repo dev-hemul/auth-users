@@ -85,9 +85,9 @@ const Profile = () => {
 	
 	return (
 		<div
-			className="min-h-screen flex flex-col items-center bg-gray-50 text-gray-800 p-6">
-			<div className="bg-white shadow-md rounded-lg p-8 w-full max-w-lg mt-20">
-				<h2 className="text-2xl font-bold mb-6 text-center text-gray-700">
+			className="min-h-screen flex flex-col items-center bg-gray-50 text-gray-800 p-6 dark:bg-gray-900">
+			<div className="bg-white shadow-md rounded-lg p-8 w-full max-w-lg mt-20 dark:bg-gray-800">
+				<h2 className="text-2xl font-bold mb-6 text-center text-gray-700 dark:text-white">
 					Профіль користувача
 				</h2>
 				<div className="flex flex-col items-center">
@@ -117,17 +117,17 @@ const Profile = () => {
 							)
 						)}
 					</div>
-					<p className="text-lg mb-4">
-						<span className="block font-medium text-gray-600 text-center">User ID:</span>{' '}
-						{profileData.uid}
+					<p className="text-lg mb-4 dark:text-white">
+						<span className="block font-medium text-gray-600 text-center dark:text-white">User ID:</span>{' '}
+						<div className="flex justify-center">{profileData.uid}</div>
 					</p>
-					<p className="text-lg mb-4">
-						<span className="block font-medium text-gray-600 text-center">Ваш логін:</span>{' '}
-						{profileData.login}
+					<p className="text-lg mb-4 dark:text-white">
+						<span className="block font-medium text-gray-600 text-center dark:text-white">Ваш логін:</span>{' '}
+						<div className="flex justify-center">{profileData.login}</div>
 					</p>
-					<p className="text-lg mb-4">
-						<span className="block font-medium text-gray-600 text-center">Ваш E-mail:</span>{' '}
-						{profileData.email}
+					<p className="text-lg mb-4 dark:text-white">
+						<span className="block font-medium text-gray-600 text-center dark:text-white">Ваш E-mail:</span>{' '}
+						<div className="flex justify-center">{profileData.email}</div>
 					</p>
 				</div>
 				<button

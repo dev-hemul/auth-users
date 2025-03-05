@@ -40,13 +40,13 @@ const ResetPassword = () => {
 	};
 
 	return (
-		<div className="flex justify-center items-center min-h-screen bg-gray-100">
-			<div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-				<h2 className="text-2xl font-semibold text-center mb-6">Заміна пароля</h2>
+		<div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-700 ease-in-out">
+			<div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md dark:bg-gray-800 transition-colors duration-800 ease-in-out">
+				<h2 className="text-2xl font-semibold text-center mb-6 dark:text-white transition-colors duration-1000 ease-in-out">Заміна пароля</h2>
 
 				<form onSubmit={handleSubmit}>
 					<div className="mb-4">
-						<label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
+						<label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 dark:text-white transition-colors duration-1000 ease-in-out">
 							Новий пароль
 						</label>
 						<input
@@ -55,12 +55,12 @@ const ResetPassword = () => {
 							value={newPassword}
 							onChange={(e) => setNewPassword(e.target.value)}
 							required
-							className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+							className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:placeholder-gray-500 dark:bg-gray-800 dark:text-white"
 						/>
 					</div>
 
 					<div className="mb-4">
-						<label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+						<label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-white transition-colors duration-1000 ease-in-out">
 							Підтвердьте пароль
 						</label>
 						<input
@@ -69,7 +69,7 @@ const ResetPassword = () => {
 							value={confirmPassword}
 							onChange={(e) => setConfirmPassword(e.target.value)}
 							required
-							className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+							className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:placeholder-gray-500 dark:bg-gray-800 dark:text-white"
 						/>
 					</div>
 
@@ -81,7 +81,7 @@ const ResetPassword = () => {
 
 					<button
 						type="submit"
-						className="w-full py-2 px-4 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+						className="w-full py-2 px-4 text-white bg-emerald-500 hover:bg-emerald-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md focus:outline-none text-sm font-medium"
 					>
 						Змінити пароль
 					</button>
