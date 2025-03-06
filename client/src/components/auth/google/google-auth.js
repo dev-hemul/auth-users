@@ -3,8 +3,10 @@ import axios from 'axios';
 import {toast} from 'react-toastify';
 import {useNavigate} from 'react-router-dom';
 import {FcGoogle} from 'react-icons/fc';
+import {useTranslation} from "react-i18next";
 
 const GoogleAuthButton = ({type}) => {
+	const {t} = useTranslation();
 	const navigate = useNavigate();
 	
 	// Налаштування Google авторизації
@@ -22,7 +24,7 @@ const GoogleAuthButton = ({type}) => {
 				
 				if (data.status === 'ok') {
 					toast.success(
-						type === 'register' ? 'Успішна реєстрація' : 'Успішний вхід'
+						type === 'register' ? t("Successful_registration_google_toast") : t("Successfully_logged_toast")
 					);
 					
 					localStorage.setItem('accessToken', data.message.accessT);
@@ -32,8 +34,8 @@ const GoogleAuthButton = ({type}) => {
 				} else {
 					toast.error(
 						type === 'register'
-							? 'Помилка реєстрації через Google'
-							: 'Помилка авторизації через Google'
+							? t("Google_registration_error_toast")
+							: t("Google_authorization_error_toast")
 					);
 				}
 			} catch (error) {
@@ -46,8 +48,8 @@ const GoogleAuthButton = ({type}) => {
 					// У випадку іншого типу помилки, наприклад, якщо немає відповіді від сервера
 					toast.error(
 						type === 'register'
-							? 'Виникла помилка при реєстрації'
-							: 'Виникла помилка при авторизації'
+							? t("Registration_error_toast")
+							: t("Authorization_error_toast")
 					);
 				}
 			}
@@ -56,8 +58,8 @@ const GoogleAuthButton = ({type}) => {
 			console.error('Google Auth Error:', error);
 			toast.error(
 				type === 'register'
-					? 'Помилка реєстрації через Google'
-					: 'Помилка авторизації через Google'
+					? t("Google_registration_error_toast")
+					: t("Google_authorization_error_toast")
 			);
 		}
 	});

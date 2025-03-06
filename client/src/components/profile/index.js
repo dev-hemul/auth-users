@@ -2,8 +2,10 @@ import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import {useNavigate} from 'react-router-dom';
 import replaceToken from '../auth/replaceToken/replaceToken';
+import {useTranslation} from "react-i18next";
 
 const Profile = () => {
+	const {t} = useTranslation();
 	const [profileData, setProfileData] = useState(null);
 	const [error, setError] = useState(null);
 	const [showAvatarWarning, setShowAvatarWarning] = useState(true);
@@ -88,14 +90,14 @@ const Profile = () => {
 			className="min-h-screen flex flex-col items-center bg-gray-50 text-gray-800 p-6 dark:bg-gray-900">
 			<div className="bg-white shadow-md rounded-lg p-8 w-full max-w-lg mt-20 dark:bg-gray-800">
 				<h2 className="text-2xl font-bold mb-6 text-center text-gray-700 dark:text-white">
-					Профіль користувача
+					{t("User_profile")}
 				</h2>
 				<div className="flex flex-col items-center">
 					<div>
 						{profileData.avatar === null && showAvatarWarning ? (
 							<div className="p-4 mb-5 border">
 								<strong className="block mb-5 text-gray-500 underline">
-									Аватар доступний тільки в google або facebook авторизації!
+									{t("Avatar_is_only_on_google_or_facebook")}
 								</strong>
 								<div className="flex justify-center">
 									<img src="/angry-gif.webp" width="150" alt=""/>
@@ -122,11 +124,11 @@ const Profile = () => {
 						<div className="flex justify-center">{profileData.uid}</div>
 					</p>
 					<p className="text-lg mb-4 dark:text-white">
-						<span className="block font-medium text-gray-600 text-center dark:text-white">Ваш логін:</span>{' '}
+						<span className="block font-medium text-gray-600 text-center dark:text-white">{t("Your_login")}:</span>{' '}
 						<div className="flex justify-center">{profileData.login}</div>
 					</p>
 					<p className="text-lg mb-4 dark:text-white">
-						<span className="block font-medium text-gray-600 text-center dark:text-white">Ваш E-mail:</span>{' '}
+						<span className="block font-medium text-gray-600 text-center dark:text-white">{t("Your_e-mail")}:</span>{' '}
 						<div className="flex justify-center">{profileData.email}</div>
 					</p>
 				</div>

@@ -7,7 +7,7 @@ import GoogleAuthButton from '../google/google-auth';
 import FacebookAuthButton from '../facebook/facebook-auth';
 import {IoMoonOutline, IoMoon} from "react-icons/io5";
 import {useTranslation} from "react-i18next";
-import {useSelector, useDispatch} from "react-redux";
+import {useSelector} from "react-redux";
 
 const LoginPage = ({toggleTheme, theme, handleLanguageChange}) => {
 	const [isLoginMode, setIsLoginMode] = useState(true);
@@ -17,7 +17,6 @@ const LoginPage = ({toggleTheme, theme, handleLanguageChange}) => {
 	const [email, setEmail] = useState('');
 	const navigate = useNavigate();
 	const {t} = useTranslation();
-	const dispatch = useDispatch();
 	const lang = useSelector((state) => state.language.lang);
 	
 	useEffect(() => {
@@ -63,7 +62,7 @@ const LoginPage = ({toggleTheme, theme, handleLanguageChange}) => {
 		const refreshToken = localStorage.getItem('refreshToken');
 		
 		if (accessToken && refreshToken) {
-			toast.info('Ви вже авторизовані');
+			toast.info(t("You_are_already_logged_toast"));
 			navigate('/profile');
 			return;
 		}
@@ -73,7 +72,7 @@ const LoginPage = ({toggleTheme, theme, handleLanguageChange}) => {
 			const {data} = await axios.post(`${apiUrl}`, {login, password});
 			
 			if (data.status === 'ok') {
-				toast.success('Ви успішно увійшли в систему!');
+				toast.success(t("Successfully_logged_toast"));
 				console.log(data.message.accessT)
 				console.log(data.message.refreshT)
 				localStorage.setItem('accessToken', data.message.accessT);
@@ -85,13 +84,13 @@ const LoginPage = ({toggleTheme, theme, handleLanguageChange}) => {
 			if (error.response) {
 				const errorMessage = error.response.data.error;
 				if (errorMessage === 'Invalid login') {
-					toast.error('Не правильний логін!');
+					toast.error(t("Incorrect_login_toast"));
 				} else if (errorMessage === 'Invalid password') {
 					toast.error(t("Incorrect_password"));
 				} else if (errorMessage === 'Invalid email') {
-					toast.info('Логін і пароль мають бути від 3 символів!');
+					toast.info(t("Login_and_password_must_be_at_least_3_characters_long_toast"));
 				} else {
-					toast.error(`Помилка: ${errorMessage || 'Щось пішло не так...'}`);
+					toast.error(`Помилка: ${errorMessage || t("Something_went_wrong_toast")}`);
 				}
 			}
 		}
@@ -109,12 +108,12 @@ const LoginPage = ({toggleTheme, theme, handleLanguageChange}) => {
 					const {accessT: accessToken, refreshT: refreshToken} = data.message;
 					localStorage.setItem('accessToken', accessToken);
 					localStorage.setItem('refreshToken', refreshToken);
-					toast.success('Реєстрація успішна! Тепер залогіньтесь!');
+					toast.success(t("Registration_successful_toast"));
 					setIsLoginMode(true);
 				}
 			} catch (error) {
 				console.error('Помилка при реєстрації', error.message);
-				toast.error('Такий логін або e-mail вже зареєстрований!');
+				toast.error(t("This username or email address is already registered!"));
 			}
 		}
 	};
@@ -129,11 +128,11 @@ const LoginPage = ({toggleTheme, theme, handleLanguageChange}) => {
 				setIsResetMode(false);
 				setIsLoginMode(true);
 			} else {
-				toast.error('Не вдалося надіслати інструкцію.');
+				toast.error(t("Failed_to_send_instructions_toast"));
 			}
 		} catch (error) {
 			console.error('Помилка відновлення пароля:', error.message);
-			toast.error('Виникла помилка при запиті.');
+			toast.error(t("An_error_occurred_during_the_request_toast"));
 		}
 	};
 	
