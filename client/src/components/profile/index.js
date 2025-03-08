@@ -2,15 +2,14 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import replaceToken from '../auth/replaceToken/replaceToken';
-import { useTranslation } from "react-i18next";
-
+import { useTranslation } from 'react-i18next';
+import profile from '../../accets/profile.png';
+import { GoPencil } from 'react-icons/go';
 
 const Profile = () => {
   const { t } = useTranslation();
   const [profileData, setProfileData] = useState(null);
-  const [avatarUploaded, setAvatarUploaded] = useState(false);
   const [error, setError] = useState(null);
-  const [avatarFile, setAvatarFile] = useState(null);
   const [loading, setLoading] = useState(false); // Статус загрузки
   const navigate = useNavigate();
 
@@ -31,8 +30,8 @@ const Profile = () => {
           {},
           {
             headers: {
-              Authorization: `Bearer ${accessToken}`
-            }
+              Authorization: `Bearer ${accessToken}`,
+            },
           }
         );
         setProfileData(data.payload);
@@ -55,45 +54,30 @@ const Profile = () => {
     navigate('/');
   };
 
-  // Обработчик выбора файла
-  const handleAvatarChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setAvatarFile(file);
-    }
-  };
-
-  // Обработчик загрузки аватара
-  const handleAvatarUpload = async () => {
-    if (!avatarFile) return;
+  // Обробник завантаження аватару
+  const handleAvatarUpload = async (file) => {
+    if (!file) return;
 
     const formData = new FormData();
-    formData.append('avatar', avatarFile);
+    formData.append('avatar', file);
 
     setLoading(true);
     try {
       const accessToken = localStorage.getItem('accessToken');
       const apiUrl2 = process.env.REACT_APP_CHANGE_AVATAR;
-      console.log(apiUrl2);
 
-      await axios.post(
-        apiUrl2,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'multipart/form-data'
-          }
-        }
-      );
-
-      // После загрузки обновим данные профиля
+      await axios.post(apiUrl2, formData, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+			
       await fetchProfileData();
-      setAvatarUploaded(true); // Скрываем кнопку загрузки
       setLoading(false);
     } catch (error) {
-      console.log(error);
-      setError('Ошибка при загрузке аватара');
+      console.error(error);
+      setError('Помилка при завантаженні аватара');
       setLoading(false);
     }
   };
@@ -106,8 +90,8 @@ const Profile = () => {
       {},
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
+          Authorization: `Bearer ${accessToken}`,
+        },
       }
     );
     setProfileData(data.payload);
@@ -141,53 +125,53 @@ const Profile = () => {
     <div className="min-h-screen flex flex-col items-center bg-gray-50 text-gray-800 p-6 dark:bg-gray-900">
       <div className="bg-white shadow-md rounded-lg p-8 w-full max-w-lg mt-20 dark:bg-gray-800">
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-700 dark:text-white">
-          {t("User_profile")}
+          {t('User_profile')}
         </h2>
         <div className="flex flex-col items-center">
-          <div>
-            {profileData.avatar && (
-              <img
-                className="mb-5"
-                src={`${profileData.avatar}`}
-                alt="User Avatar"
-                style={{
-                  display: 'block',
-                  width: '100px',
-                  height: '100px',
-                  borderRadius: '50%'
-                }}
-              />
-            )}
+          <div className="relative w-[100px] h-[100px] flex items-center justify-center">
+            <img
+              className="mb-5"
+              src={profileData.avatar || profile}
+              alt="profile"
+              width="100"
+              height="100"
+              style={{ borderRadius: '50%' }}
+            />
+
+            <label
+              htmlFor="avatarInput"
+              className="absolute -top-2 -right-1 bg-gray-700 text-white p-2 rounded-full cursor-pointer opacity-80 hover:opacity-100 transition-opacity"
+            >
+              <GoPencil size={14} />
+            </label>
           </div>
 
-          {!avatarUploaded && (
-            <div className="mt-4">
-              <input
-                type="file"
-                onChange={handleAvatarChange}
-                accept="image/*"
-                className="mb-4"
-              />
-              <button
-                onClick={handleAvatarUpload}
-                disabled={loading}
-                className={`w-full px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md ${loading ? 'bg-blue-300' : 'hover:bg-blue-600'}`}
-              >
-                {loading ? 'Завантаження...' : 'Завантажити аватар'}
-              </button>
-            </div>
-          )}
+          <div className="mt-4">
+            <input
+              type="file"
+              id="avatarInput"
+              onChange={(e) => handleAvatarUpload(e.target.files[0])}
+              accept="image/*"
+              className="hidden"
+            />
+          </div>
 
           <p className="text-lg mb-4 dark:text-white">
-            <span className="block font-medium text-gray-600 text-center dark:text-white">User ID:</span>{' '}
+            <span className="block font-medium text-gray-600 text-center dark:text-white">
+              User ID:
+            </span>{' '}
             <div className="flex justify-center">{profileData.uid}</div>
           </p>
           <p className="text-lg mb-4 dark:text-white">
-            <span className="block font-medium text-gray-600 text-center dark:text-white">{t("Your_login")}:</span>{' '}
+            <span className="block font-medium text-gray-600 text-center dark:text-white">
+              {t('Your_login')}:
+            </span>{' '}
             <div className="flex justify-center">{profileData.login}</div>
           </p>
           <p className="text-lg mb-4 dark:text-white">
-            <span className="block font-medium text-gray-600 text-center dark:text-white">{t("Your_e-mail")}:</span>{' '}
+            <span className="block font-medium text-gray-600 text-center dark:text-white">
+              {t('Your_e-mail')}:
+            </span>{' '}
             <div className="flex justify-center">{profileData.email}</div>
           </p>
         </div>
@@ -196,7 +180,7 @@ const Profile = () => {
           onClick={logout}
           className="w-full px-4 py-2 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75 transition"
         >
-          {t("Exit")}
+          {t('Exit')}
         </button>
       </div>
     </div>
@@ -204,4 +188,3 @@ const Profile = () => {
 };
 
 export default Profile;
-
