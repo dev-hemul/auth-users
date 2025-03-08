@@ -26,7 +26,7 @@ export const uploadAvatar = async (req, res) => {
       return res.status(403).json({ message: 'Некорректный токен' });
     }
 
-    const avatarUrl = req.file.path;
+    const avatarUrl = req.file.path || req.file.url;
 
     // Сохраняем URL в БД
     const user = await User.findByIdAndUpdate(userId, { avatar: avatarUrl }, { new: true });
