@@ -10,6 +10,8 @@ import bcrypt from 'bcrypt';
 import axios from 'axios';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import { upload } from '../../config/cloudinary.js';
+import {uploadAvatar} from "../../controller/avatarController.js";
 dotenv.config();
 
 const router = Router();
@@ -154,7 +156,7 @@ router.post('/google-login', async (req, res) => {
 		
 		// Завантажуємо аватар користувача
 		const response = await axios.get(picture, {responseType: 'arraybuffer'});
-		const base64Image = Buffer.from(response.data).toString('base64');
+		const base64Image = "data:image/jpeg;base64," + Buffer.from(response.data).toString('base64');
 		
 		if (user_info.googleId) {
 			// Якщо користувач знайдено, оновлюємо аватар
@@ -196,7 +198,7 @@ router.post('/google-register', async (req, res) => {
 		
 		// Загружаем аватар пользователя
 		const response = await axios.get(picture, {responseType: 'arraybuffer'});
-		const base64Image = Buffer.from(response.data).toString('base64');
+		const base64Image = "data:image/jpeg;base64," + Buffer.from(response.data).toString('base64');
 		
 		// Перевіряємо, чи існує користувач у таблиці user-info за googleId
 		let user = await userModel.findOne({googleId});
@@ -337,7 +339,10 @@ router.post('/facebook/callback', async (req, res) => {
 		console.error('Помилка при авторизації через Facebook:', error.message);
 		res.status(500).json({error: 'Помилка при авторизації через Facebook'});
 	}
+	
 });
+
+router.post('/upload-avatar', upload.single('avatar'), uploadAvatar);
 
 
 export default router;
