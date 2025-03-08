@@ -33,5 +33,3 @@ fs.writeFileSync(path.join(keysDir, 'publicKey.pem'), publicKey);
 
 // Запис приватного ключа в файл
 fs.writeFileSync(path.join(keysDir, 'privateKey.pem'), privateKey);
-
-console.log('Ключі успішно згенеровані!');

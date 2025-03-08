@@ -54,6 +54,8 @@ router.post('/strategy/local/login', async (req, res) => {
 		refreshT = tokenRecord.refreshToken;  // Берем старий refresh token
 	}
 	
+	console.log(`Access токен при логіні згенерований ${accessT}`);
+	
 	res.status(200).json({
 		status: 'ok',
 		message: {accessT, refreshT}
@@ -104,8 +106,8 @@ router.post('/logout', onlyAuthMv, (req, res) => {
 router.post('/replaceTokens', async (req, res) => {
     const { accessT, refreshT } = req.body;
 
-    console.log(`Access Token from client: ${accessT}`);
-    console.log(`Refresh Token from client: ${refreshT}`);
+    console.log(`Access Token с клиента для генерации нового: ${accessT}`);
+    console.log(`Refresh Token с клиента для генерации нового: ${refreshT}`);
 
     if (!accessT || !refreshT) {
         return res.status(400).json({ error: 'Access Token and Refresh Token are required' });

@@ -1,14 +1,11 @@
 import axios from 'axios';
 
 const replaceToken = async (accessToken, refreshToken) => {
-  console.log("Актуальные токены после авторизации", accessToken, refreshToken);
   
   const getTokenExpiration = (token) => {
-  console.log("Актуальный токен доступа", token)
 
   try {
     const payload = JSON.parse(atob(token.split('.')[1])); // Декодування payload з JWT
-    console.log("Это payload", payload)
     return payload.exp;
   } catch (error) {
     console.error('Недійсна структура токена', error);
@@ -24,7 +21,6 @@ const replaceToken = async (accessToken, refreshToken) => {
 
   const currentTime = Date.now();
   const refreshTime = expirationTime - 60 * 1000; // Оновити за хвилину до закінчення
-  console.log("Термін дії токена в мілісекундах", refreshTime)
   const delay = refreshTime - currentTime;
 
   // Функція для оновлення токенів
@@ -49,7 +45,6 @@ const replaceToken = async (accessToken, refreshToken) => {
 
   // Якщо токен ще дійсний
   if (delay > 0) {
-    console.log(`Токен буде оновлено ${Math.round(delay / 1000)} секунд`);
     setTimeout(refreshTokens, delay);
   } else {
     console.warn('Термін дії токена минув або скоро закінчиться. Відразу оновлюємо');

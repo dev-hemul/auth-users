@@ -73,8 +73,6 @@ const LoginPage = ({toggleTheme, theme, handleLanguageChange}) => {
 			
 			if (data.status === 'ok') {
 				toast.success(t("Successfully_logged_toast"));
-				console.log(data.message.accessT)
-				console.log(data.message.refreshT)
 				localStorage.setItem('accessToken', data.message.accessT);
 				localStorage.setItem('refreshToken', data.message.refreshT);
 				navigate('/profile');
