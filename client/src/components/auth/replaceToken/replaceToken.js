@@ -25,31 +25,35 @@ const replaceToken = async (accessToken, refreshToken) => {
 
   // Функція для оновлення токенів
   const refreshTokens = async () => {
-    try {
-      const apiUrl = process.env.REACT_APP_REPLACE_TOKENS;
-      const { data } = await axios.post(apiUrl, { accessT: accessToken, refreshT: refreshToken });
+  try {
+    const apiUrl = process.env.REACT_APP_REPLACE_TOKENS;
+    const { data } = await axios.post(apiUrl, { accessT: accessToken, refreshT: refreshToken });
 
-      // Збереження нових токенів у localStorage
-      const newAccessToken = data.accessT;
-      const newRefreshToken = data.refreshT;
-
-      localStorage.setItem('accessToken', newAccessToken);
-      localStorage.setItem('refreshToken', newRefreshToken);
-
-      // Запуск нового циклу оновлення токенів
-      await replaceToken(newAccessToken, newRefreshToken);
-    } catch (error) {
-      console.error('Не вдалося оновити токен', error);
+    if (!data.accessT || !data.refreshT) {
+      throw new Error('Сервер не вернул новые токены');
     }
-  };
 
-  // Якщо токен ще дійсний
-  if (delay > 0) {
-    setTimeout(refreshTokens, delay);
-  } else {
-    console.warn('Термін дії токена минув або скоро закінчиться. Відразу оновлюємо');
-    await refreshTokens();
+    // Обновляем токены в localStorage
+    localStorage.setItem('accessToken', data.accessT);
+    localStorage.setItem('refreshToken', data.refreshT);
+
+    // Перезапускаем механизм обновления
+    await replaceToken(data.accessT, data.refreshT);
+  } catch (error) {
+    console.error('Не удалось обновить токен:', error);
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    window.location.href = '/'; // Выкидываем на страницу логина
   }
+};
+
+// Если токен уже истек, сразу обновляем его
+if (delay > 0) {
+  setTimeout(refreshTokens, delay);
+} else {
+  console.warn('Токен истек, пытаемся обновить сразу.');
+  await refreshTokens();
+}
 };
 
 export default replaceToken;

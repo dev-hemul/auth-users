@@ -15,7 +15,10 @@ module.exports = {
         PUBLIC_KEY_PATH: '/var/www/auth-users/keys/publicKey.pem', // Абсолютный путь на сервере
         FB_CLIENT_ID: '1161748475475183',
         FB_CLIENT_SECRET: 'b9da926ed8e62712076b1561ce52cbac',
-        FB_REDIRECT_FRONT: 'https://evgeniiviter.site/'
+        FB_REDIRECT_FRONT: 'https://evgeniiviter.site/',
+        CLOUDINARY_CLOUD_NAME: 'drwoup9w6',
+        CLOUDINARY_API_KEY: '635826323163627',
+        CLOUDINARY_API_SECRET: '4ECmLisWiUqh3kz_G-94kBx-4kg'
       },
     },
   ],
