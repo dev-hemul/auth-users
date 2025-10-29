@@ -7,10 +7,17 @@ import { nanoid } from 'nanoid';
 const alg = 'RS512';
 const lifedur = 3 * 60 * 1000;  // 3 хвилин
 
-const rootdir = process.cwd();
+// Берём путь к корню проекта
+const rootDir = path.resolve();
 
-const privateKeyPath = process.env.PRIVATE_KEY_PATH || path.join(rootdir, 'keys/privateKey.pem');
-const publicKeyPath = process.env.PUBLIC_KEY_PATH || path.join(rootdir, 'keys/publicKey.pem');
+// Если есть переменные окружения — берём их, иначе используем относительный путь
+const privateKeyPath = process.env.PRIVATE_KEY_PATH
+    ? path.resolve(process.env.PRIVATE_KEY_PATH)
+    : path.join(rootDir, 'keys', 'privateKey.pem');
+
+const publicKeyPath = process.env.PUBLIC_KEY_PATH
+    ? path.resolve(process.env.PUBLIC_KEY_PATH)
+    : path.join(rootDir, 'keys', 'publicKey.pem');
 
 const priv = await fs.readFile(privateKeyPath, 'utf8');
 const pub = await fs.readFile(publicKeyPath, 'utf8');
